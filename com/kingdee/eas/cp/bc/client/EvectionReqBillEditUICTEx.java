@@ -31,11 +31,13 @@ import com.kingdee.eas.util.client.MsgBox;
 public class EvectionReqBillEditUICTEx extends EvectionReqBillEditUI {
 
 	private String ENTRY_PROJECT = "project";
+	private String ENTRY_PERSON = "person";
 	private String ENTRY_EXPENSETYPE = "expenseType";
 	private String ENTRY_COSTEDDEPT = "costedDept";
 	private KDTEditAdapter entryEditListener;
 	
 	protected KDBizPromptBox entryCostedDept = new KDBizPromptBox();
+	protected KDBizPromptBox entryPerson = new KDBizPromptBox();
 	protected KDBizPromptBox bizPromptExpenseTypeEntry = new KDBizPromptBox();
 	
 	public EvectionReqBillEditUICTEx() throws Exception {
@@ -73,7 +75,15 @@ public class EvectionReqBillEditUICTEx extends EvectionReqBillEditUI {
 		
 		kdtEntries.getColumn(ENTRY_PROJECT).setRequired(false);
 		this.kdtEntries.getColumn(this.ENTRY_COSTEDDEPT).setRequired(true);
-		  
+		
+		entryPerson.setQueryInfo("com.kingdee.eas.basedata.person.app.PersonQuery");
+		entryPerson.setVisible(true);
+		entryPerson.setEditable(true);
+		entryPerson.setRequired(false);
+		entryPerson.setDisplayFormat("$name$");
+		entryPerson.setEditFormat("$number$");
+		entryPerson.setCommitFormat("$number$");
+		this.kdtEntries.getColumn(ENTRY_PERSON).setEditor(new KDTDefaultCellEditor(entryPerson));
 	}
 	
 	@Override

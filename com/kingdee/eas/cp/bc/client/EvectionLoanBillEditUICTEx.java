@@ -86,6 +86,7 @@ public class EvectionLoanBillEditUICTEx extends EvectionLoanBillEditUI {
 		prmtPersonBox.setEditFormat("$number$");
 		prmtPersonBox.setDisplayFormat("$name$");
 		prmtPersonBox.setCommitFormat("$number$");
+		this.kdtEntries.getColumn("person").setEditor(new KDTDefaultCellEditor(prmtPersonBox));
 	}
 
 	

@@ -51,6 +51,7 @@ public class ReturnBillControllerBean extends AbstractReturnBillControllerBean
     private static Logger logger =
         Logger.getLogger("com.kingdee.eas.cp.bc.app.ReturnBillControllerBean");
     
+    //保存
     @Override
     protected IObjectPK _save(Context ctx, IObjectValue model)
     		throws BOSException, EASBizException {
@@ -63,6 +64,7 @@ public class ReturnBillControllerBean extends AbstractReturnBillControllerBean
     	return pk;
     }
     
+    //提交
 	@Override
     protected IObjectPK _submit(Context ctx, IObjectValue model)
     		throws BOSException, EASBizException {
@@ -75,6 +77,7 @@ public class ReturnBillControllerBean extends AbstractReturnBillControllerBean
     	return pk;
     }
     
+	//审核
 	@Override
 	protected void _audit(Context ctx, IObjectValue model)
 			throws BOSException, EASBizException {
@@ -94,55 +97,47 @@ public class ReturnBillControllerBean extends AbstractReturnBillControllerBean
     	updateLoanBill(ctx,info,"AUDIT");
 	}
 	
-	/**
-	 * 更新借款单
-	 * @param ctx
-	 * @param info
-	 * @param str 
-	 * @throws BOSException
-	 * @throws EASBizException
-	 */
+	//更新借款单
 	private void updateLoanBill(Context ctx, ReturnBillInfo info, String str) throws BOSException, EASBizException {
 		SelectorItemCollection sic = null;
 		
-		if(ReturnBillTypeEnum.EVECTIONLOAN_VALUE.equals(info.getReturnBillType().getValue())){//出差借款单
+		if(ReturnBillTypeEnum.EVECTIONLOAN_VALUE.equals(info.getReturnBillType().getValue())){//出差借款单还款
 			IEvectionLoanBill iBill = EvectionLoanBillFactory.getLocalInstance(ctx);
 			EvectionLoanBillInfo loanInfo = getEvectionLoanByNumber(iBill,info.getLoanBillNumber());
 			if(loanInfo!=null){
 				EvectionLoanBillInfo loanBillInfo = new EvectionLoanBillInfo();
 				loanBillInfo.setId(BOSUuid.read(loanInfo.getId().toString()));
-				
+				loanBillInfo.setReturnAmt(info.getReturnAmount());
 				
 				sic = new SelectorItemCollection();
+				sic.add(new SelectorItemInfo("returnAmt"));
 			    sic.add(new SelectorItemInfo("returnState"));
 			    if("AUDIT".equals(str)){
 			    	loanBillInfo.setReturnState(ReturnStateEnum.COMFIRMPAID);
-			    	loanBillInfo.setReturnAmt(info.getReturnAmount());
-			    	sic.add(new SelectorItemInfo("returnAmt"));
 			    }else if("SAVE".equals(str)){
 			    	loanBillInfo.setReturnState(ReturnStateEnum.TEMPSAVE);
 			    }else if("SUBMIT".equals(str)){
 			    	loanBillInfo.setReturnState(ReturnStateEnum.SUBMITEDPAID);
 			    }else if("DELETE".equals(str)){
+			    	loanBillInfo.setReturnAmt(null);
 			    	loanBillInfo.setReturnState(null);
 			    }
-			    
 			    iBill.updatePartial(loanBillInfo, sic);
 			}
-		}else if(ReturnBillTypeEnum.DAILYLOAN_VALUE.equals(info.getReturnBillType().getValue())){
+		}else if(ReturnBillTypeEnum.DAILYLOAN_VALUE.equals(info.getReturnBillType().getValue())){//借款单还款
 			IDailyLoanBill loanBill = DailyLoanBillFactory.getLocalInstance(ctx);
 			DailyLoanBillInfo loanInfo = getDailyLoanByNumber(loanBill,info.getLoanBillNumber());
     		if(loanInfo!=null){
     			DailyLoanBillInfo loanBillInfo = new DailyLoanBillInfo();
     			loanBillInfo.setId(BOSUuid.read(loanInfo.getId().toString()));
+    			loanBillInfo.setReturnAmt(info.getReturnAmount());
     			
     			sic = new SelectorItemCollection();
     		    sic.add(new SelectorItemInfo("returnState"));
+    		    sic.add(new SelectorItemInfo("returnAmt"));
     		    
     		    if("AUDIT".equals(str)){
 			    	loanBillInfo.setReturnState(ReturnStateEnum.COMFIRMPAID);
-			    	loanBillInfo.setReturnAmt(info.getReturnAmount());
-			    	sic.add(new SelectorItemInfo("returnAmt"));
 			    }else if("SAVE".equals(str)){
 			    	loanBillInfo.setReturnState(ReturnStateEnum.TEMPSAVE);
 			    }else if("SUBMIT".equals(str)){
@@ -150,13 +145,12 @@ public class ReturnBillControllerBean extends AbstractReturnBillControllerBean
 			    }else if("DELETE".equals(str)){
 			    	loanBillInfo.setReturnState(null);
 			    }
-    		    
     			loanBill.updatePartial(loanBillInfo, sic);
     		}
 		}
-		
 	}
 
+	//删除
 	@Override
 	protected void _delete(Context ctx, IObjectPK pk) throws BOSException,
 			EASBizException {
@@ -166,6 +160,7 @@ public class ReturnBillControllerBean extends AbstractReturnBillControllerBean
 		
 	}
 	
+	//通过编码获取借款单
 	private DailyLoanBillInfo getDailyLoanByNumber(
 			IDailyLoanBill loanBill, String billNum) throws BOSException {
     	DailyLoanBillInfo billInfo = null;
@@ -180,6 +175,7 @@ public class ReturnBillControllerBean extends AbstractReturnBillControllerBean
 		return billInfo;
 	}
 	
+	//通过编码获取出差借款单
 	private EvectionLoanBillInfo getEvectionLoanByNumber(
 			IEvectionLoanBill bill, String billNum) throws BOSException {
 		EvectionLoanBillInfo billInfo = null;

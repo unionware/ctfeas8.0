@@ -355,7 +355,7 @@ public abstract class AbstractReturnBillEditUI extends com.kingdee.eas.framework
         this.prmtloanor.setQueryInfo("com.kingdee.eas.base.permission.app.UserListQuery");		
         this.prmtloanor.setVisible(true);		
         this.prmtloanor.setEditable(true);		
-        this.prmtloanor.setDisplayFormat("$number$");		
+        this.prmtloanor.setDisplayFormat("$name$");		
         this.prmtloanor.setEditFormat("$number$");		
         this.prmtloanor.setCommitFormat("$number$");		
         this.prmtloanor.setRequired(false);		

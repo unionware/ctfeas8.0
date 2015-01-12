@@ -24,6 +24,7 @@ import com.kingdee.bos.ctrl.swing.KDCheckBox;
 import com.kingdee.bos.ctrl.swing.KDComboBox;
 import com.kingdee.bos.ctrl.swing.event.DataChangeEvent;
 import com.kingdee.bos.ctrl.swing.event.DataChangeListener;
+import com.kingdee.bos.dao.IObjectCollection;
 import com.kingdee.bos.dao.IObjectValue;
 import com.kingdee.bos.dao.ormapping.ObjectUuidPK;
 import com.kingdee.bos.metadata.entity.EntityViewInfo;
@@ -79,7 +80,7 @@ public class BizAccountEditUICTEx extends BizAccountEditUI {
 	public void loadFields() {
 		super.loadFields();
 		
-		if(STATUS_ADDNEW.equals(oprtState) && (getUIContext().get("isListCopyAndAddNew")==null || !Boolean.valueOf(getUIContext().get("isListCopyAndAddNew").toString()))){
+		if(STATUS_ADDNEW.equals(oprtState) && (getUIContext().get("isListCopyAndAddNew")==null || !Boolean.valueOf(getUIContext().get("isListCopyAndAddNew").toString())) && (getUIContext().get("isCopy")==null || !Boolean.valueOf(getUIContext().get("isCopy").toString()))){
 			if(kdtCollectionEntries.getRowCount()>1){
 				kdtCollectionEntries.removeRow(0);
 			}
@@ -137,12 +138,6 @@ public class BizAccountEditUICTEx extends BizAccountEditUI {
 	@Override
 	public void onLoad() throws Exception {
 		
-		prmtVoucherWord.setEnabled(true);
-		prmtVoucherWord.setQueryInfo("com.kingdee.eas.cp.bc.app.F7CompanyVoucherNumber");
-		prmtVoucherWord.setDisplayFormat("$voucherNumber$");
-		prmtVoucherWord.setCommitFormat("$voucherNumber$");
-		prmtVoucherWord.setEditFormat("$voucherNumber$");
-		
 		person = new KDBizPromptBox();
 		person.setEditable(true);
 		person.setRequired(true);
@@ -177,6 +172,18 @@ public class BizAccountEditUICTEx extends BizAccountEditUI {
 		setprmtVoucherWordView(prmtVoucherWord, companyOrgUnitInfo);
 		
 		initEntry();
+		
+		prmtVoucherWord.setEnabled(false);
+		prmtVoucherWord.setQueryInfo("com.kingdee.eas.cp.bc.app.F7CompanyVoucherNumber");
+		prmtVoucherWord.setDisplayFormat("$voucherNumber$");
+		prmtVoucherWord.setCommitFormat("$voucherNumber$");
+		prmtVoucherWord.setEditFormat("$voucherNumber$");
+		
+		if(STATUS_VOUCHERVIEW.equals(oprtState)){
+			prmtVoucherWord.setEnabled(true);
+			prmtVoucherWord.setRequired(true);
+			actionSubmit.setEnabled(true);
+		}
 	}
 	
 	protected void initEntry(){
@@ -674,7 +681,13 @@ public class BizAccountEditUICTEx extends BizAccountEditUI {
 	@Override
 	protected void beforeStoreFields(ActionEvent e) throws Exception {
 		super.beforeStoreFields(e);
-		
+
+		if(STATUS_VOUCHERVIEW.equals(oprtState)){
+			if(prmtVoucherWord.getValue()==null){
+				MsgBox.showWarning("凭证字不能为空");
+				SysUtil.abort();
+			}
+		}
 		
 		for(int i=0;i < kdtCollectionEntries.getRowCount() ;i++){
 			////必录校验-----ZRG
@@ -716,14 +729,12 @@ public class BizAccountEditUICTEx extends BizAccountEditUI {
 						SysUtil.abort();
 					}
 				}
-				if(kdtCollectionEntries.getCell(i, "amountOri").getValue() == null ||
-						BigDecimal.ZERO.compareTo(new BigDecimal(kdtCollectionEntries.getCell(i, "amountOri").getValue().toString()))==0){
-					MsgBox.showWarning("第" + (i+1) + "行原币金额不能为空或者为0");
+				if(kdtCollectionEntries.getCell(i, "amountOri").getValue() == null){
+					MsgBox.showWarning("第" + (i+1) + "行原币金额不能为空");
 					SysUtil.abort();
 				}
-				if(kdtCollectionEntries.getCell(i, "amount").getValue() == null ||
-						BigDecimal.ZERO.compareTo(new BigDecimal(kdtCollectionEntries.getCell(i, "amount").getValue().toString()))==0){
-					MsgBox.showWarning("第" + (i+1) + "行本位币金额不能为空或者为0");
+				if(kdtCollectionEntries.getCell(i, "amount").getValue() == null){
+					MsgBox.showWarning("第" + (i+1) + "行本位币金额不能为空");
 					SysUtil.abort();
 				}
 				
@@ -865,6 +876,34 @@ public class BizAccountEditUICTEx extends BizAccountEditUI {
 			return;
 		}
 		purpose_autoFitRowHeight();
+	}
+	
+	@Override
+	public void bindTableToData(KDTable table, IObjectCollection detailCollection) {
+		if (detailCollection == null)
+			return;
+		detailCollection.clear();
+
+		IObjectValue obj;
+		IRow row;
+		for (int i = 0, n = table.getRowCount(); i < n; i++) {
+			row = table.getRow(i);
+			if (checkIsCountLine(row))
+				continue;
+			
+			obj = (IObjectValue) row.getUserObject();
+
+			if (detailCollection.addObject(obj)) {
+				storeLineFields(table, row, obj);
+			}
+		}
+	}
+	
+	@Override
+	public void actionCopy_actionPerformed(ActionEvent e) throws Exception {
+		getUIContext().put("isCopy", true);
+		
+		super.actionCopy_actionPerformed(e);
 	}
 
 }

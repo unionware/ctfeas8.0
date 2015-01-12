@@ -61,6 +61,17 @@ public class AbstractEvectionReqBillEntryInfo extends com.kingdee.eas.cp.bc.Evec
     {
         put("costedDept", item);
     }
+    /**
+     * Object: ·ÖÂ¼ 's Ö°Ô± property 
+     */
+    public com.kingdee.eas.basedata.person.PersonInfo getPerson()
+    {
+        return (com.kingdee.eas.basedata.person.PersonInfo)get("person");
+    }
+    public void setPerson(com.kingdee.eas.basedata.person.PersonInfo item)
+    {
+        put("person", item);
+    }
     public BOSObjectType getBOSType()
     {
         return new BOSObjectType("5902774E");

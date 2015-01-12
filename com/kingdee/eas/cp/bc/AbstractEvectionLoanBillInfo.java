@@ -140,7 +140,7 @@ public class AbstractEvectionLoanBillInfo extends com.kingdee.eas.cp.bc.LoanBill
 		}
     }
     /**
-     * Object:出差借款单's 还款金额(二开)property 
+     * Object:出差借款单's 还款金额property 
      */
     public java.math.BigDecimal getReturnAmt()
     {

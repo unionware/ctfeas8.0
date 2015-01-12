@@ -278,7 +278,7 @@ public class BizAccountBillControllerBeanEx extends
 		checkEntry(ctx,info);
 	}
 	
-	protected void checkEntry1(Context ctx, IObjectValue model)
+	protected void checkEntry(Context ctx, IObjectValue model)
 			throws BOSException, EASBizException {
 		BizAccountBillInfo info = (BizAccountBillInfo)model;
 		BizAccountBillEntryInfo entry = null;
@@ -290,10 +290,6 @@ public class BizAccountBillControllerBeanEx extends
 		DateFormat df = new SimpleDateFormat("yyyy");
 		int year = Integer.parseInt(df.format(info.getBizDate()));
 		ExcessSetCollection excesssetinfos = getExcessSetInfos(ctx, year);
-		
-		BigDecimal checkAmount = null;
-		BigDecimal subAmt = null;
-		BigDecimal loanAmt = null;
 		
 		BizAccountBillReqCheckEntryInfo reqInfo = null;
 		SelectorItemCollection selector = new SelectorItemCollection();
@@ -391,11 +387,13 @@ public class BizAccountBillControllerBeanEx extends
 				if(amt.compareTo(reqMap.get(key))>0){
 					 throw new ExpAccException(new NumericExceptionSubItem("1111","项目："+project.getName()+"，费用归属部门："+entry.getCostCenter().getName()+"申请金额本位币（扣减冲借款）已经超过费用申请单本位币申请金额！"));
 				}
+			}else if(amt!=null && amt.compareTo(BigDecimal.ZERO)>0){
+				throw new ExpAccException(new NumericExceptionSubItem("1111","项目："+project.getName()+"，费用归属部门："+entry.getCostCenter().getName()+"申请金额本位币（扣减冲借款）已经超过费用申请单本位币申请金额！"));
 			}
 		}
 	}
 	
-	protected void checkEntry(Context ctx, IObjectValue model)
+	protected void checkEntry1(Context ctx, IObjectValue model)
 			throws BOSException, EASBizException {
 		BizAccountBillInfo info = (BizAccountBillInfo)model;
 		BizAccountBillEntryInfo entry = null;

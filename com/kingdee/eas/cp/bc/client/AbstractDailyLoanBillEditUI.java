@@ -96,6 +96,7 @@ public abstract class AbstractDailyLoanBillEditUI extends com.kingdee.eas.cp.bc.
     protected com.kingdee.bos.ctrl.swing.KDScrollPane bgScrol;
     protected com.kingdee.bos.ctrl.swing.KDLabelContainer kDLabelContainer37;
     protected com.kingdee.bos.ctrl.swing.KDLabelContainer kDLabelContainer38;
+    protected com.kingdee.bos.ctrl.swing.KDLabelContainer kDLabelContainer39;
     protected com.kingdee.bos.ctrl.swing.KDTextField txtName;
     protected com.kingdee.bos.ctrl.swing.KDTextField txtNumber;
     protected com.kingdee.bos.ctrl.extendcontrols.KDBizPromptBox bizPromptApplier;
@@ -138,6 +139,7 @@ public abstract class AbstractDailyLoanBillEditUI extends com.kingdee.eas.cp.bc.
     protected com.kingdee.bos.ctrl.swing.KDTextArea bgText;
     protected com.kingdee.bos.ctrl.swing.KDComboBox returnState;
     protected com.kingdee.bos.ctrl.swing.KDFormattedTextField txtreturnAmount;
+    protected com.kingdee.bos.ctrl.swing.KDTextField txtContractNO;
     protected com.kingdee.bos.ctrl.swing.KDWorkButton btnViewRcrdsOfLendAndRepay;
     protected com.kingdee.bos.ctrl.swing.KDMenuItem menuItemViewRcds;
     protected com.kingdee.bos.ctrl.swing.KDMenuItem menuItemViewBudget;
@@ -280,6 +282,7 @@ public abstract class AbstractDailyLoanBillEditUI extends com.kingdee.eas.cp.bc.
         this.bgScrol = new com.kingdee.bos.ctrl.swing.KDScrollPane();
         this.kDLabelContainer37 = new com.kingdee.bos.ctrl.swing.KDLabelContainer();
         this.kDLabelContainer38 = new com.kingdee.bos.ctrl.swing.KDLabelContainer();
+        this.kDLabelContainer39 = new com.kingdee.bos.ctrl.swing.KDLabelContainer();
         this.txtName = new com.kingdee.bos.ctrl.swing.KDTextField();
         this.txtNumber = new com.kingdee.bos.ctrl.swing.KDTextField();
         this.bizPromptApplier = new com.kingdee.bos.ctrl.extendcontrols.KDBizPromptBox();
@@ -322,6 +325,7 @@ public abstract class AbstractDailyLoanBillEditUI extends com.kingdee.eas.cp.bc.
         this.bgText = new com.kingdee.bos.ctrl.swing.KDTextArea();
         this.returnState = new com.kingdee.bos.ctrl.swing.KDComboBox();
         this.txtreturnAmount = new com.kingdee.bos.ctrl.swing.KDFormattedTextField();
+        this.txtContractNO = new com.kingdee.bos.ctrl.swing.KDTextField();
         this.btnViewRcrdsOfLendAndRepay = new com.kingdee.bos.ctrl.swing.KDWorkButton();
         this.menuItemViewRcds = new com.kingdee.bos.ctrl.swing.KDMenuItem();
         this.menuItemViewBudget = new com.kingdee.bos.ctrl.swing.KDMenuItem();
@@ -375,6 +379,7 @@ public abstract class AbstractDailyLoanBillEditUI extends com.kingdee.eas.cp.bc.
         this.bgScrol.setName("bgScrol");
         this.kDLabelContainer37.setName("kDLabelContainer37");
         this.kDLabelContainer38.setName("kDLabelContainer38");
+        this.kDLabelContainer39.setName("kDLabelContainer39");
         this.txtName.setName("txtName");
         this.txtNumber.setName("txtNumber");
         this.bizPromptApplier.setName("bizPromptApplier");
@@ -417,6 +422,7 @@ public abstract class AbstractDailyLoanBillEditUI extends com.kingdee.eas.cp.bc.
         this.bgText.setName("bgText");
         this.returnState.setName("returnState");
         this.txtreturnAmount.setName("txtreturnAmount");
+        this.txtContractNO.setName("txtContractNO");
         this.btnViewRcrdsOfLendAndRepay.setName("btnViewRcrdsOfLendAndRepay");
         this.menuItemViewRcds.setName("menuItemViewRcds");
         this.menuItemViewBudget.setName("menuItemViewBudget");
@@ -645,6 +651,10 @@ public abstract class AbstractDailyLoanBillEditUI extends com.kingdee.eas.cp.bc.
         this.kDLabelContainer38.setBoundLabelLength(100);		
         this.kDLabelContainer38.setBoundLabelUnderline(true);		
         this.kDLabelContainer38.setEnabled(false);
+        // kDLabelContainer39		
+        this.kDLabelContainer39.setBoundLabelText(resHelper.getString("kDLabelContainer39.boundLabelText"));		
+        this.kDLabelContainer39.setBoundLabelLength(100);		
+        this.kDLabelContainer39.setBoundLabelUnderline(true);
         // txtName		
         this.txtName.setMaxLength(80);
         // txtNumber		
@@ -781,7 +791,7 @@ public abstract class AbstractDailyLoanBillEditUI extends com.kingdee.eas.cp.bc.
         // dateUpdateDate		
         this.dateUpdateDate.setEnabled(false);
         // kdtEntries
-		String kdtEntriesStrXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><DocRoot xmlns:c=\"http://www.kingdee.com/Common\" xmlns:f=\"http://www.kingdee.com/Form\" xmlns:t=\"http://www.kingdee.com/Table\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.kingdee.com/KDF KDFSchema.xsd\" version=\"0.0\"><Styles><c:Style id=\"sCol0\"><c:Protection hidden=\"true\" /></c:Style><c:Style id=\"sCol7\"><c:Alignment horizontal=\"right\" /></c:Style><c:Style id=\"sCol8\"><c:Protection hidden=\"true\" /><c:NumberFormat>%r-[=]{#,##0.00}.2f</c:NumberFormat><c:Alignment horizontal=\"right\" /></c:Style><c:Style id=\"sCol9\"><c:NumberFormat>%r-[=]{#,##0.00}.2f</c:NumberFormat><c:Alignment horizontal=\"right\" /></c:Style><c:Style id=\"sCol10\"><c:NumberFormat>%r-[=]{#,##0.00}.2f</c:NumberFormat><c:Alignment horizontal=\"right\" /></c:Style><c:Style id=\"sCol11\"><c:Protection locked=\"true\" /><c:NumberFormat>%r-[=]{#,##0.00}.2f</c:NumberFormat><c:Alignment horizontal=\"right\" /></c:Style><c:Style id=\"sCol12\"><c:NumberFormat>%r-[=]{#,##0.00}.2f</c:NumberFormat><c:Alignment horizontal=\"right\" /></c:Style><c:Style id=\"sCol13\"><c:Protection locked=\"true\" /><c:NumberFormat>%r-[=]{#,##0.00}.2f</c:NumberFormat><c:Alignment horizontal=\"right\" /></c:Style><c:Style id=\"sCol14\"><c:NumberFormat>%r-[=]{#,##0.00}.2f</c:NumberFormat><c:Alignment horizontal=\"right\" /></c:Style><c:Style id=\"sCol15\"><c:NumberFormat>%r-[=]{#,##0.00}.2f</c:NumberFormat><c:Alignment horizontal=\"right\" /></c:Style><c:Style id=\"sCol16\"><c:NumberFormat>%r-[=]{#,##0.00}.2f</c:NumberFormat><c:Alignment horizontal=\"right\" /></c:Style><c:Style id=\"sCol17\"><c:NumberFormat>%r-[=]{#,##0.00}.2f</c:NumberFormat><c:Alignment horizontal=\"right\" /></c:Style><c:Style id=\"sCol18\"><c:Protection hidden=\"true\" /></c:Style><c:Style id=\"sCol20\"><c:Protection locked=\"true\" hidden=\"true\" /></c:Style><c:Style id=\"sCol21\"><c:Protection hidden=\"true\" /></c:Style><c:Style id=\"sCol22\"><c:Protection hidden=\"true\" /></c:Style><c:Style id=\"sCol23\"><c:Protection hidden=\"true\" /></c:Style></Styles><Table id=\"KDTable\"><t:Sheet name=\"sheet1\"><t:Table t:selectMode=\"15\" t:mergeMode=\"0\" t:dataRequestMode=\"0\" t:pageRowCount=\"100\"><t:ColumnGroup><t:Column t:key=\"id\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"0\" t:styleID=\"sCol0\" /><t:Column t:key=\"expensetype\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"true\" t:index=\"1\" /><t:Column t:key=\"project\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"2\" /><t:Column t:key=\"CostedDept\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"true\" t:index=\"3\" /><t:Column t:key=\"purpose\" t:width=\"200\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"true\" t:index=\"4\" /><t:Column t:key=\"particiants\" t:width=\"80\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"5\" /><t:Column t:key=\"currencyType\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"true\" t:index=\"6\" /><t:Column t:key=\"exchangeRate\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"true\" t:index=\"7\" t:styleID=\"sCol7\" /><t:Column t:key=\"budgetAmountOri\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"8\" t:styleID=\"sCol8\" /><t:Column t:key=\"budgetAmount\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"9\" t:styleID=\"sCol9\" /><t:Column t:key=\"amountOri\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"10\" t:styleID=\"sCol10\" /><t:Column t:key=\"amount\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"11\" t:styleID=\"sCol11\" /><t:Column t:key=\"approvedAmountOri\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"12\" t:styleID=\"sCol12\" /><t:Column t:key=\"approvedAmount\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"13\" t:styleID=\"sCol13\" /><t:Column t:key=\"amountUsedOri\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"14\" t:styleID=\"sCol14\" /><t:Column t:key=\"amountUsed\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"15\" t:styleID=\"sCol15\" /><t:Column t:key=\"amountBalanceOri\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"16\" t:styleID=\"sCol16\" /><t:Column t:key=\"amountBalance\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"17\" t:styleID=\"sCol17\" /><t:Column t:key=\"flag\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"18\" t:styleID=\"sCol18\" /><t:Column t:key=\"comment\" t:width=\"200\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"19\" /><t:Column t:key=\"sourceBillNumber\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"20\" t:styleID=\"sCol20\" /><t:Column t:key=\"sourceEntryId\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"21\" t:styleID=\"sCol21\" /><t:Column t:key=\"convertMode\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"22\" t:styleID=\"sCol22\" /><t:Column t:key=\"exchangeRatePrecision\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"23\" t:styleID=\"sCol23\" /><t:Column t:key=\"person\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"-1\" /></t:ColumnGroup><t:Head><t:Row t:name=\"header\" t:height=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\"><t:Cell>$Resource{id}</t:Cell><t:Cell>$Resource{expensetype}</t:Cell><t:Cell>$Resource{project}</t:Cell><t:Cell>$Resource{CostedDept}</t:Cell><t:Cell>$Resource{purpose}</t:Cell><t:Cell>$Resource{particiants}</t:Cell><t:Cell>$Resource{currencyType}</t:Cell><t:Cell>$Resource{exchangeRate}</t:Cell><t:Cell>$Resource{budgetAmountOri}</t:Cell><t:Cell>$Resource{budgetAmount}</t:Cell><t:Cell>$Resource{amountOri}</t:Cell><t:Cell>$Resource{amount}</t:Cell><t:Cell>$Resource{approvedAmountOri}</t:Cell><t:Cell>$Resource{approvedAmount}</t:Cell><t:Cell>$Resource{amountUsedOri}</t:Cell><t:Cell>$Resource{amountUsed}</t:Cell><t:Cell>$Resource{amountBalanceOri}</t:Cell><t:Cell>$Resource{amountBalance}</t:Cell><t:Cell>$Resource{flag}</t:Cell><t:Cell>$Resource{comment}</t:Cell><t:Cell>$Resource{sourceBillNumber}</t:Cell><t:Cell>$Resource{sourceEntryId}</t:Cell><t:Cell>$Resource{convertMode}</t:Cell><t:Cell>$Resource{exchangeRatePrecision}</t:Cell><t:Cell>$Resource{person}</t:Cell></t:Row></t:Head></t:Table><t:SheetOptions><t:MergeBlocks><t:Head /></t:MergeBlocks></t:SheetOptions></t:Sheet></Table></DocRoot>";
+		String kdtEntriesStrXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><DocRoot xmlns:c=\"http://www.kingdee.com/Common\" xmlns:f=\"http://www.kingdee.com/Form\" xmlns:t=\"http://www.kingdee.com/Table\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.kingdee.com/KDF KDFSchema.xsd\" version=\"0.0\"><Styles><c:Style id=\"sCol0\"><c:Protection hidden=\"true\" /></c:Style><c:Style id=\"sCol8\"><c:Alignment horizontal=\"right\" /></c:Style><c:Style id=\"sCol9\"><c:Protection hidden=\"true\" /><c:NumberFormat>%r-[=]{#,##0.00}.2f</c:NumberFormat><c:Alignment horizontal=\"right\" /></c:Style><c:Style id=\"sCol10\"><c:NumberFormat>%r-[=]{#,##0.00}.2f</c:NumberFormat><c:Alignment horizontal=\"right\" /></c:Style><c:Style id=\"sCol11\"><c:NumberFormat>%r-[=]{#,##0.00}.2f</c:NumberFormat><c:Alignment horizontal=\"right\" /></c:Style><c:Style id=\"sCol12\"><c:Protection locked=\"true\" /><c:NumberFormat>%r-[=]{#,##0.00}.2f</c:NumberFormat><c:Alignment horizontal=\"right\" /></c:Style><c:Style id=\"sCol13\"><c:NumberFormat>%r-[=]{#,##0.00}.2f</c:NumberFormat><c:Alignment horizontal=\"right\" /></c:Style><c:Style id=\"sCol14\"><c:Protection locked=\"true\" /><c:NumberFormat>%r-[=]{#,##0.00}.2f</c:NumberFormat><c:Alignment horizontal=\"right\" /></c:Style><c:Style id=\"sCol15\"><c:NumberFormat>%r-[=]{#,##0.00}.2f</c:NumberFormat><c:Alignment horizontal=\"right\" /></c:Style><c:Style id=\"sCol16\"><c:NumberFormat>%r-[=]{#,##0.00}.2f</c:NumberFormat><c:Alignment horizontal=\"right\" /></c:Style><c:Style id=\"sCol17\"><c:NumberFormat>%r-[=]{#,##0.00}.2f</c:NumberFormat><c:Alignment horizontal=\"right\" /></c:Style><c:Style id=\"sCol18\"><c:NumberFormat>%r-[=]{#,##0.00}.2f</c:NumberFormat><c:Alignment horizontal=\"right\" /></c:Style><c:Style id=\"sCol19\"><c:Protection hidden=\"true\" /></c:Style><c:Style id=\"sCol21\"><c:Protection locked=\"true\" hidden=\"true\" /></c:Style><c:Style id=\"sCol22\"><c:Protection hidden=\"true\" /></c:Style><c:Style id=\"sCol23\"><c:Protection hidden=\"true\" /></c:Style><c:Style id=\"sCol24\"><c:Protection hidden=\"true\" /></c:Style></Styles><Table id=\"KDTable\"><t:Sheet name=\"sheet1\"><t:Table t:selectMode=\"15\" t:mergeMode=\"0\" t:dataRequestMode=\"0\" t:pageRowCount=\"100\"><t:ColumnGroup><t:Column t:key=\"id\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"0\" t:styleID=\"sCol0\" /><t:Column t:key=\"expensetype\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"true\" t:index=\"1\" /><t:Column t:key=\"project\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"2\" /><t:Column t:key=\"CostedDept\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"true\" t:index=\"3\" /><t:Column t:key=\"person\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"true\" t:index=\"4\" /><t:Column t:key=\"purpose\" t:width=\"200\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"true\" t:index=\"5\" /><t:Column t:key=\"particiants\" t:width=\"80\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"6\" /><t:Column t:key=\"currencyType\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"true\" t:index=\"7\" /><t:Column t:key=\"exchangeRate\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"true\" t:index=\"8\" t:styleID=\"sCol8\" /><t:Column t:key=\"budgetAmountOri\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"9\" t:styleID=\"sCol9\" /><t:Column t:key=\"budgetAmount\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"10\" t:styleID=\"sCol10\" /><t:Column t:key=\"amountOri\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"11\" t:styleID=\"sCol11\" /><t:Column t:key=\"amount\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"12\" t:styleID=\"sCol12\" /><t:Column t:key=\"approvedAmountOri\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"13\" t:styleID=\"sCol13\" /><t:Column t:key=\"approvedAmount\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"14\" t:styleID=\"sCol14\" /><t:Column t:key=\"amountUsedOri\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"15\" t:styleID=\"sCol15\" /><t:Column t:key=\"amountUsed\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"16\" t:styleID=\"sCol16\" /><t:Column t:key=\"amountBalanceOri\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"17\" t:styleID=\"sCol17\" /><t:Column t:key=\"amountBalance\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"18\" t:styleID=\"sCol18\" /><t:Column t:key=\"flag\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"19\" t:styleID=\"sCol19\" /><t:Column t:key=\"comment\" t:width=\"200\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"20\" /><t:Column t:key=\"sourceBillNumber\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"21\" t:styleID=\"sCol21\" /><t:Column t:key=\"sourceEntryId\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"22\" t:styleID=\"sCol22\" /><t:Column t:key=\"convertMode\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"23\" t:styleID=\"sCol23\" /><t:Column t:key=\"exchangeRatePrecision\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"24\" t:styleID=\"sCol24\" /></t:ColumnGroup><t:Head><t:Row t:name=\"header\" t:height=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\"><t:Cell>$Resource{id}</t:Cell><t:Cell>$Resource{expensetype}</t:Cell><t:Cell>$Resource{project}</t:Cell><t:Cell>$Resource{CostedDept}</t:Cell><t:Cell>$Resource{person}</t:Cell><t:Cell>$Resource{purpose}</t:Cell><t:Cell>$Resource{particiants}</t:Cell><t:Cell>$Resource{currencyType}</t:Cell><t:Cell>$Resource{exchangeRate}</t:Cell><t:Cell>$Resource{budgetAmountOri}</t:Cell><t:Cell>$Resource{budgetAmount}</t:Cell><t:Cell>$Resource{amountOri}</t:Cell><t:Cell>$Resource{amount}</t:Cell><t:Cell>$Resource{approvedAmountOri}</t:Cell><t:Cell>$Resource{approvedAmount}</t:Cell><t:Cell>$Resource{amountUsedOri}</t:Cell><t:Cell>$Resource{amountUsed}</t:Cell><t:Cell>$Resource{amountBalanceOri}</t:Cell><t:Cell>$Resource{amountBalance}</t:Cell><t:Cell>$Resource{flag}</t:Cell><t:Cell>$Resource{comment}</t:Cell><t:Cell>$Resource{sourceBillNumber}</t:Cell><t:Cell>$Resource{sourceEntryId}</t:Cell><t:Cell>$Resource{convertMode}</t:Cell><t:Cell>$Resource{exchangeRatePrecision}</t:Cell></t:Row></t:Head></t:Table><t:SheetOptions><t:MergeBlocks><t:Head /></t:MergeBlocks></t:SheetOptions></t:Sheet></Table></DocRoot>";
 		
         this.kdtEntries.setFormatXml(resHelper.translateString("kdtEntries",kdtEntriesStrXML));
         this.kdtEntries.addKDTEditListener(new com.kingdee.bos.ctrl.kdf.table.event.KDTEditAdapter() {
@@ -794,7 +804,7 @@ public abstract class AbstractDailyLoanBillEditUI extends com.kingdee.eas.cp.bc.
             }
         });
 
-                this.kdtEntries.putBindContents("editData",new String[] {"id","expenseType","project","costDept","purpose","participants","currencyType","exchangeRate","budgetAmountOri","budgetAmount","amountOri","amount","amountApprovedOri","amountApproved","amountUsedOri","amountUsed","amountBalanceOri","amountBalance","","comment","sourceBillNumber","sourceBillEntryID","convertMode","exchangeRatePrecision","person"});
+                this.kdtEntries.putBindContents("editData",new String[] {"id","expenseType","project","costDept","person","purpose","participants","currencyType","exchangeRate","budgetAmountOri","budgetAmount","amountOri","amount","amountApprovedOri","amountApproved","amountUsedOri","amountUsed","amountBalanceOri","amountBalance","","comment","sourceBillNumber","sourceBillEntryID","convertMode","exchangeRatePrecision"});
 
 
         this.kdtEntries.checkParsed();
@@ -834,6 +844,18 @@ public abstract class AbstractDailyLoanBillEditUI extends com.kingdee.eas.cp.bc.
         ObjectValueRender kdtEntries_CostedDept_OVR = new ObjectValueRender();
         kdtEntries_CostedDept_OVR.setFormat(new BizDataFormat("$name$"));
         this.kdtEntries.getColumn("CostedDept").setRenderer(kdtEntries_CostedDept_OVR);
+        final KDBizPromptBox kdtEntries_person_PromptBox = new KDBizPromptBox();
+        kdtEntries_person_PromptBox.setQueryInfo("com.kingdee.eas.basedata.person.app.PersonQuery");
+        kdtEntries_person_PromptBox.setVisible(true);
+        kdtEntries_person_PromptBox.setEditable(true);
+        kdtEntries_person_PromptBox.setDisplayFormat("$number$");
+        kdtEntries_person_PromptBox.setEditFormat("$number$");
+        kdtEntries_person_PromptBox.setCommitFormat("$number$");
+        KDTDefaultCellEditor kdtEntries_person_CellEditor = new KDTDefaultCellEditor(kdtEntries_person_PromptBox);
+        this.kdtEntries.getColumn("person").setEditor(kdtEntries_person_CellEditor);
+        ObjectValueRender kdtEntries_person_OVR = new ObjectValueRender();
+        kdtEntries_person_OVR.setFormat(new BizDataFormat("$name$"));
+        this.kdtEntries.getColumn("person").setRenderer(kdtEntries_person_OVR);
         final KDBizPromptBox kdtEntries_currencyType_PromptBox = new KDBizPromptBox();
         kdtEntries_currencyType_PromptBox.setQueryInfo("com.kingdee.eas.basedata.assistant.app.CurrencyQuery");
         kdtEntries_currencyType_PromptBox.setVisible(true);
@@ -852,18 +874,6 @@ public abstract class AbstractDailyLoanBillEditUI extends com.kingdee.eas.cp.bc.
         kdtEntries_convertMode_ComboBox.addItems(EnumUtils.getEnumList("com.kingdee.eas.basedata.assistant.ConvertModeEnum").toArray());
         KDTDefaultCellEditor kdtEntries_convertMode_CellEditor = new KDTDefaultCellEditor(kdtEntries_convertMode_ComboBox);
         this.kdtEntries.getColumn("convertMode").setEditor(kdtEntries_convertMode_CellEditor);
-        final KDBizPromptBox kdtEntries_person_PromptBox = new KDBizPromptBox();
-        kdtEntries_person_PromptBox.setQueryInfo("com.kingdee.eas.basedata.person.app.PersonQuery");
-        kdtEntries_person_PromptBox.setVisible(true);
-        kdtEntries_person_PromptBox.setEditable(true);
-        kdtEntries_person_PromptBox.setDisplayFormat("$number$");
-        kdtEntries_person_PromptBox.setEditFormat("$number$");
-        kdtEntries_person_PromptBox.setCommitFormat("$number$");
-        KDTDefaultCellEditor kdtEntries_person_CellEditor = new KDTDefaultCellEditor(kdtEntries_person_PromptBox);
-        this.kdtEntries.getColumn("person").setEditor(kdtEntries_person_CellEditor);
-        ObjectValueRender kdtEntries_person_OVR = new ObjectValueRender();
-        kdtEntries_person_OVR.setFormat(new BizDataFormat("$name$"));
-        this.kdtEntries.getColumn("person").setRenderer(kdtEntries_person_OVR);
         // kDTextAreaCause		
         this.kDTextAreaCause.setText(resHelper.getString("kDTextAreaCause.text"));		
         this.kDTextAreaCause.setMaxLength(20);
@@ -994,6 +1004,8 @@ public abstract class AbstractDailyLoanBillEditUI extends com.kingdee.eas.cp.bc.
         this.txtreturnAmount.setDataType(1);		
         this.txtreturnAmount.setPrecision(2);		
         this.txtreturnAmount.setEnabled(false);
+        // txtContractNO		
+        this.txtContractNO.setMaxLength(100);
         // btnViewRcrdsOfLendAndRepay
         this.btnViewRcrdsOfLendAndRepay.setAction((IItemAction)ActionProxyFactory.getProxy(actionViewRrcdsOfLendAndRepay, new Class[] { IItemAction.class }, getServiceContext()));		
         this.btnViewRcrdsOfLendAndRepay.setText(resHelper.getString("btnViewRcrdsOfLendAndRepay.text"));		
@@ -1135,6 +1147,8 @@ public abstract class AbstractDailyLoanBillEditUI extends com.kingdee.eas.cp.bc.
         this.add(kDLabelContainer37, new KDLayout.Constraints(9, 155, 240, 19, KDLayout.Constraints.ANCHOR_TOP | KDLayout.Constraints.ANCHOR_LEFT | KDLayout.Constraints.ANCHOR_RIGHT_SCALE));
         kDLabelContainer38.setBounds(new Rectangle(279, 155, 242, 19));
         this.add(kDLabelContainer38, new KDLayout.Constraints(279, 155, 242, 19, KDLayout.Constraints.ANCHOR_TOP | KDLayout.Constraints.ANCHOR_LEFT_SCALE | KDLayout.Constraints.ANCHOR_RIGHT_SCALE));
+        kDLabelContainer39.setBounds(new Rectangle(552, 155, 235, 19));
+        this.add(kDLabelContainer39, new KDLayout.Constraints(552, 155, 235, 19, KDLayout.Constraints.ANCHOR_TOP | KDLayout.Constraints.ANCHOR_LEFT_SCALE | KDLayout.Constraints.ANCHOR_RIGHT));
         //kDLabelContainer1
         kDLabelContainer1.setBoundEditor(txtName);
         //kDLabelContainer2
@@ -1219,6 +1233,8 @@ kDReqContainer.getContentPane().setLayout(new BorderLayout(0, 0));        kDReqC
         kDLabelContainer37.setBoundEditor(returnState);
         //kDLabelContainer38
         kDLabelContainer38.setBoundEditor(txtreturnAmount);
+        //kDLabelContainer39
+        kDLabelContainer39.setBoundEditor(txtContractNO);
 
     }
 
@@ -1489,7 +1505,8 @@ kDReqContainer.getContentPane().setLayout(new BorderLayout(0, 0));        kDReqC
 		dataBinder.registerBinding("voucherNum", com.kingdee.eas.cp.bc.CompanyVoucherNumInfo.class, this.prmtVoucherNum, "data");
 		dataBinder.registerBinding("k3VoucherNumber", String.class, this.txtVoucherNumber, "text");
 		dataBinder.registerBinding("returnState", com.kingdee.eas.cp.bc.ReturnStateEnum.class, this.returnState, "selectedItem");
-		dataBinder.registerBinding("returnAmt", java.math.BigDecimal.class, this.txtreturnAmount, "value");		
+		dataBinder.registerBinding("returnAmt", java.math.BigDecimal.class, this.txtreturnAmount, "value");
+		dataBinder.registerBinding("contractNO", String.class, this.txtContractNO, "text");		
 	}
 	//Regiester UI State
 	private void registerUIState(){					 	        		
@@ -1835,7 +1852,8 @@ kDReqContainer.getContentPane().setLayout(new BorderLayout(0, 0));        kDReqC
 		getValidateHelper().registerBindProperty("voucherNum", ValidateHelper.ON_SAVE);    
 		getValidateHelper().registerBindProperty("k3VoucherNumber", ValidateHelper.ON_SAVE);    
 		getValidateHelper().registerBindProperty("returnState", ValidateHelper.ON_SAVE);    
-		getValidateHelper().registerBindProperty("returnAmt", ValidateHelper.ON_SAVE);    		
+		getValidateHelper().registerBindProperty("returnAmt", ValidateHelper.ON_SAVE);    
+		getValidateHelper().registerBindProperty("contractNO", ValidateHelper.ON_SAVE);    		
 	}
 
 
@@ -2351,6 +2369,7 @@ kDReqContainer.getContentPane().setLayout(new BorderLayout(0, 0));        kDReqC
         sic.add(new SelectorItemInfo("k3VoucherNumber"));
         sic.add(new SelectorItemInfo("returnState"));
         sic.add(new SelectorItemInfo("returnAmt"));
+        sic.add(new SelectorItemInfo("contractNO"));
         return sic;
     }        
     	

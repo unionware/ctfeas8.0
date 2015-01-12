@@ -172,7 +172,7 @@ public class AbstractDailyLoanBillInfo extends com.kingdee.eas.cp.bc.LoanBillInf
 		}
     }
     /**
-     * Object:借款单's 还款金额(二开)property 
+     * Object:借款单's 还款金额property 
      */
     public java.math.BigDecimal getReturnAmt()
     {
@@ -181,6 +181,17 @@ public class AbstractDailyLoanBillInfo extends com.kingdee.eas.cp.bc.LoanBillInf
     public void setReturnAmt(java.math.BigDecimal item)
     {
         setBigDecimal("returnAmt", item);
+    }
+    /**
+     * Object:借款单's 合同号property 
+     */
+    public String getContractNO()
+    {
+        return getString("contractNO");
+    }
+    public void setContractNO(String item)
+    {
+        setString("contractNO", item);
     }
     public BOSObjectType getBOSType()
     {

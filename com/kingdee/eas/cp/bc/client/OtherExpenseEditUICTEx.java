@@ -45,6 +45,7 @@ import com.kingdee.eas.util.client.MsgBox;
 public class OtherExpenseEditUICTEx extends OtherExpenseEditUI {
 
     private String ENTRY_PROJECT = "project";//清单-项目
+    private String ENTRY_PERSON = "person";//清单-职员
     private String ENTRY_COSTEDDEPT = "costedDept";//清单-费用归属部门
     private String ENTRY_EXPENSETYPE = "expenseType";//清单-费用类型
     private String ENTRY_CURRENCYTYPE = "currencyType";//清单-币别类型
@@ -65,6 +66,7 @@ public class OtherExpenseEditUICTEx extends OtherExpenseEditUI {
     private KDTEditAdapter linkEntryEditListener;
     
     protected KDBizPromptBox promptProjectEntry = new KDBizPromptBox();
+    protected KDBizPromptBox promptPersonEntry = new KDBizPromptBox();
     protected KDBizPromptBox promptCostedDeptEntry = new KDBizPromptBox();
     protected KDBizPromptBox linkEntryOthExpBill = new KDBizPromptBox();
     protected KDBizPromptBox entryCostedDept = new KDBizPromptBox();
@@ -147,6 +149,15 @@ public class OtherExpenseEditUICTEx extends OtherExpenseEditUI {
 		this.kdtEntries.getColumn(ENTRY_PROJECT).setEditor(new KDTDefaultCellEditor(promptProjectEntry));
 		this.kdtEntries.getColumn(ENTRY_PROJECT).setRequired(false);
 		
+		promptPersonEntry.setQueryInfo("com.kingdee.eas.basedata.person.app.PersonQuery");
+		promptPersonEntry.setVisible(true);
+		promptPersonEntry.setEditable(true);
+		promptPersonEntry.setRequired(true);
+		promptPersonEntry.setDisplayFormat("$name$");
+		promptPersonEntry.setEditFormat("$number$");
+		promptPersonEntry.setCommitFormat("$number$");
+		this.kdtEntries.getColumn(ENTRY_PERSON).setEditor(new KDTDefaultCellEditor(promptPersonEntry));
+		
 		linkEntryOthExpBill.setQueryInfo("com.kingdee.eas.cp.bc.app.OtherExpBillQuery");
 		linkEntryOthExpBill.setVisible(true);
 		linkEntryOthExpBill.setEditable(true);
@@ -213,6 +224,12 @@ public class OtherExpenseEditUICTEx extends OtherExpenseEditUI {
 				if(kdtEntries.getCell(i, ENTRY_COSTEDDEPT).getValue()==null){
 					MsgBox.showInfo(this,"费用归属部门不能为空！");
 					kdtEntries.getEditManager().editCellAt(i, kdtEntries.getColumnIndex(ENTRY_COSTEDDEPT));
+					abort();
+				}
+				
+				if(kdtEntries.getCell(i, ENTRY_PERSON).getValue()==null){
+					MsgBox.showInfo(this,"职员不能为空！");
+					kdtEntries.getEditManager().editCellAt(i, kdtEntries.getColumnIndex(ENTRY_PERSON));
 					abort();
 				}
 				
@@ -372,6 +389,16 @@ public class OtherExpenseEditUICTEx extends OtherExpenseEditUI {
 		txtApplyAmount.setValue(value);
 	}
 
+	@Override
+	public void actionRemoveLine_actionPerformed(ActionEvent arg0)
+			throws Exception {
+		int rowIndex = kdtEntries.getSelectManager().getActiveRowIndex();
+		BigDecimal entryApplyAmt = (BigDecimal) (kdtEntries.getCell(rowIndex, "approvedAmount").getValue()==null?BigDecimal.ZERO:kdtEntries.getCell(rowIndex, "approvedAmount").getValue());
+		BigDecimal applyAmt = txtApplyAmount.getBigDecimalValue();
+		super.actionRemoveLine_actionPerformed(arg0);
+		txtApplyAmount.setValue(applyAmt.subtract(entryApplyAmt));
+	}
+	
 	protected void isChangedAction(ActionEvent e) {
 		if (this.chkIsChanged.getSelectState() == 32){
 			btnAddRuleNew.setEnabled(true);

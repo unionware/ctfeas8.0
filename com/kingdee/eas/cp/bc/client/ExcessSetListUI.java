@@ -18,6 +18,7 @@ import com.kingdee.bos.ctrl.kdf.table.event.KDTSelectListener;
 import com.kingdee.bos.dao.IObjectValue;
 import com.kingdee.eas.cp.bc.ExcessSetFactory;
 import com.kingdee.eas.cp.bc.ExcessSetInfo;
+import com.kingdee.eas.cp.bc.HierarchyGetPersonFacadeFactory;
 import com.kingdee.eas.framework.*;
 import com.kingdee.eas.util.client.MsgBox;
 
@@ -34,6 +35,7 @@ public class ExcessSetListUI extends AbstractExcessSetListUI
     public ExcessSetListUI() throws Exception
     {
         super();
+        HierarchyGetPersonFacadeFactory.getRemoteInstance().getPersonByPPlH("100546", "ZJ40", "H001");
     }
 
     /**
