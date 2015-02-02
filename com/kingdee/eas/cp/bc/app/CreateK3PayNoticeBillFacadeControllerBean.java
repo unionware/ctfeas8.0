@@ -6,9 +6,9 @@ import java.math.BigDecimal;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
+import org.apache.axis.AxisProperties;
 import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -16,8 +16,8 @@ import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 import org.tempuri.Service1Locator;
-import org.tempuri.Service1Soap;
 import org.tempuri.Service1SoapProxy;
+import org.tempuri.Service1SoapStub;
 
 import com.kingdee.bos.BOSException;
 import com.kingdee.bos.Context;
@@ -56,6 +56,8 @@ import com.kingdee.eas.cp.bc.EvectionLoanBillEntryCollection;
 import com.kingdee.eas.cp.bc.EvectionLoanBillEntryInfo;
 import com.kingdee.eas.cp.bc.EvectionLoanBillFactory;
 import com.kingdee.eas.cp.bc.EvectionLoanBillInfo;
+import com.kingdee.eas.cp.bc.K3ConstantConfigCollection;
+import com.kingdee.eas.cp.bc.K3ConstantConfigFactory;
 import com.kingdee.eas.cp.bc.ReceiveObjectEnum;
 import com.kingdee.eas.cp.bc.StateEnum;
 import com.kingdee.eas.cp.bc.TravelAccountBillAccountEntryInfo;
@@ -67,7 +69,6 @@ import com.kingdee.eas.cp.bc.ZDFDateHelper;
 import com.kingdee.eas.cp.bc.app.dbutil.K3NoticeBillLogUtil;
 import com.kingdee.eas.cp.bc.app.dbutil.K3StatusReWriteUtil;
 import com.kingdee.eas.cp.bc.app.dbutil.K3VoucherDBUtil;
-import com.kingdee.eas.cp.bc.app.dbutil.K3VoucherEasNumInfo;
 import com.kingdee.eas.cp.bc.app.dbutil.K3WebAccConfigInfos;
 import com.kingdee.eas.util.app.DbUtil;
 import com.kingdee.util.NumericExceptionSubItem;
@@ -139,16 +140,45 @@ public class CreateK3PayNoticeBillFacadeControllerBean extends AbstractCreateK3P
     }
     
     
-    private String callK3WebSer(Context ctx,String xml) throws BOSException{
+    private String callK3WebSer(Context ctx,String xml) throws BOSException, EASBizException{
+    	 //正式环境用 
+    	if(K3WebAccConfigInfos.isEnableProxy(ctx)){
+    		AxisProperties.setProperty("http.proxyHost", K3WebAccConfigInfos.getProxyHost(ctx)); //HOST  "10.201.1.97"
+       	 	AxisProperties.setProperty("http.proxyPort", K3WebAccConfigInfos.getProxyPort(ctx)); //PROT  "8080"
+	   	}else{
+	   		//TODO  need clear proxy info ?
+	   	}
+    	
+    	 //end  
+    	 
     	Service1Locator.address =   K3WebAccConfigInfos.getK3WebSer(ctx);
-    	Service1Soap proxy = new Service1SoapProxy();
+    	logger.info("请求地址："+Service1Locator.address+"    ais="+ctx.getAIS()+"   请求数据" +xml);
+    	Service1SoapProxy proxy = new Service1SoapProxy();
+    	Service1SoapStub st = (Service1SoapStub)proxy.getService1Soap();
+    	st.setTimeout(60000);
+    	
     	try {
 			String rev = proxy.billData(xml);
+			/*if(1==1){
+				throw new java.net.ConnectException("");
+			}*/
 			return rev;
 		} catch (RemoteException e) {
-			logger.info("调用K3接口失败 请求数据" +xml);
-			throw  new BOSException("调用K3接口失败",e);
+			e.printStackTrace();
+			logger.error("调用K3接口失败 请求地址："+Service1Locator.address+"  timecout="+st.getTimeout()+"   ais="+ctx.getAIS()+"   请求数据" +xml);
+			throw  new BOSException("调用K3接口失败 remote req "+Service1Locator.address,e);
+		} 
+		catch (RuntimeException e) {
+			e.printStackTrace();
+			logger.error("调用K3接口失败 请求地址："+Service1Locator.address+"   timecout="+st.getTimeout()+"  ais="+ctx.getAIS()+"    请求数据" +xml);
+			throw  new BOSException("调用K3接口失败 runtime req "+Service1Locator.address,e);
 		}
+		catch (Exception e) {
+			e.printStackTrace();
+			logger.error("调用K3接口失败 请求地址："+Service1Locator.address+"   timecout="+st.getTimeout()+"  ais="+ctx.getAIS()+"    请求数据" +xml);
+			throw  new EASBizException( new NumericExceptionSubItem("ffff","调用K3接口失败 all req "+Service1Locator.address),e);
+		}
+		
     }
     
     
@@ -379,23 +409,42 @@ public class CreateK3PayNoticeBillFacadeControllerBean extends AbstractCreateK3P
 			revxml = createK3Xml(ctx, info);
 		} catch (EASBizException e) {
 			e.printStackTrace();
-			K3NoticeBillLogUtil.insertErrorLog(ctx, info.getId().toString(), info.getNumber(),billName+"生成xml出错"+e.getMessage());
+			insertLog(info, billName+"生成xml出错"+e.getMessage(), ctx);
+			//K3NoticeBillLogUtil.insertErrorLog(ctx, info.getId().toString(), info.getNumber(),billName+"生成xml出错"+e.getMessage());
 			throw e;
 		} catch (BOSException e) {
 			e.printStackTrace();
-			K3NoticeBillLogUtil.insertErrorLog(ctx, info.getId().toString(), info.getNumber(),billName+"生成xml出错"+e.getMessage());
+			insertLog(info, billName+"生成xml出错"+e.getMessage(), ctx);
+			//K3NoticeBillLogUtil.insertErrorLog(ctx, info.getId().toString(), info.getNumber(),billName+"生成xml出错"+e.getMessage());
 			throw e;
+		}catch (Exception e) {
+			e.printStackTrace();
+			insertLog(info, billName+"生成xml出错"+e.getMessage(), ctx);
+			//K3NoticeBillLogUtil.insertErrorLog(ctx, info.getId().toString(), info.getNumber(),billName+"生成xml出错"+e.getMessage());
+			throw new BOSException(e);
 		}
-    		
+		logger.error("begin调用K3接口"+billName+"请求信息" +revxml);	
+		
+		
+		
+		
     	String rev;
 		try {
 			rev = callK3WebSer(ctx,revxml);
 		} catch (BOSException e) {
 			e.printStackTrace();
-			K3NoticeBillLogUtil.insertErrorLog(ctx, info.getId().toString(), info.getNumber(),billName+"调用K3接口出错"+e.getMessage());
+			insertLog(info, billName+"调用K3接口出错"+e.getMessage(), ctx);
+			//K3NoticeBillLogUtil.insertErrorLog(ctx, info.getId().toString(), info.getNumber(),billName+"调用K3接口出错"+e.getMessage());
 			throw e;
 		}
-		logger.info("调用K3接口"+billName+"返回信息" +rev);
+		if(rev!=null && rev.length()>0){
+			logger.error("调用K3接口"+billName+"请求信息" +revxml);
+			logger.error("调用K3接口"+billName+"返回信息" +rev);
+		}else{
+			logger.info("调用K3接口"+billName+"请求信息" +revxml);
+			logger.info("调用K3接口"+billName+"返回信息" +rev);
+		}
+		logger.error("end调用K3接口");	
 		insertLog(info, rev, ctx);
 		if(!StringUtils.isEmpty(rev)){
 			throw new BOSException(rev+"");
@@ -433,13 +482,23 @@ public class CreateK3PayNoticeBillFacadeControllerBean extends AbstractCreateK3P
 				desc = desc.substring(0,254);
 			}
 			this.desc = desc;
+			if(this.desc!=null){
+				this.desc = this.desc.replaceAll("'", "‘");
+				//this.desc = this.desc.replaceAll("(", "（");
+				//this.desc = this.desc.replaceAll(")", "）");
+			}
 		}
 		
 		public void run() {
+			String sql = "insert into t_errorNoticeBillLog values('"+id+"','"+billNum+"',to_date('"+ZDFDateHelper.FORMAT_TIME.format(new Date())+"'),'"+desc+"')";
 			try {
-				DbUtil.execute(ctx, "insert into t_errorNoticeBillLog values('"+id+"','"+billNum+"',to_date('"+ZDFDateHelper.FORMAT_TIME.format(new Date())+"'),'"+desc+"')");
+				DbUtil.execute(ctx,sql );
 			} catch (BOSException e) {
 				e.printStackTrace();
+				logger.error("执行sql:"+sql,e);
+			}catch (Exception e) {
+				e.printStackTrace();
+				logger.error("执行sql:"+sql,e);
 			}
 			super.run();
 		}
@@ -743,7 +802,20 @@ public class CreateK3PayNoticeBillFacadeControllerBean extends AbstractCreateK3P
 		}
     }
     
-	
+    
+    private  String getValByNum(Context ctx,String number) throws BOSException {
+		EntityViewInfo view = new EntityViewInfo();
+		FilterInfo filter = new FilterInfo();
+		view.setFilter(filter);
+		filter.getFilterItems().add(new FilterItemInfo("number",number));
+		K3ConstantConfigCollection coll =  K3ConstantConfigFactory.getLocalInstance(ctx).getK3ConstantConfigCollection(view);
+		if(coll!=null && coll.size()>0){
+			return coll.get(0).getVal();
+		}else{
+			return null;
+		}
+	}
+    
 	
 	 private SelectorItemCollection getBillSelector(BOSObjectType  bosType){
 	    	SelectorItemCollection sic = new SelectorItemCollection();

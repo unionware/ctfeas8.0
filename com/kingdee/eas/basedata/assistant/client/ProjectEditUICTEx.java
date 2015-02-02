@@ -18,6 +18,7 @@ import com.kingdee.bos.ctrl.kdf.table.KDTSelectManager;
 import com.kingdee.bos.ctrl.kdf.table.KDTable;
 import com.kingdee.bos.ctrl.kdf.table.event.KDTEditAdapter;
 import com.kingdee.bos.ctrl.kdf.table.event.KDTEditEvent;
+import com.kingdee.bos.ctrl.kdf.util.render.ObjectValueRender;
 import com.kingdee.bos.ctrl.swing.event.SelectorEvent;
 import com.kingdee.bos.ctrl.swing.event.SelectorListener;
 import com.kingdee.bos.dao.IObjectCollection;
@@ -91,11 +92,17 @@ public class ProjectEditUICTEx extends ProjectEditUI {
 		prmtPrjManager.setQueryInfo(null);
 		
 		kdtEntry_person__PromptBox = new KDBizPromptBox();
+		kdtEntry_person__PromptBox.setRequired(true);
 		kdtEntry_person__PromptBox.setQueryInfo("com.kingdee.eas.basedata.person.app.PersonForBcQuery");
 		kdtEntry_person__PromptBox.setDisplayFormat("$number$");
 		kdtEntry_person__PromptBox.setCommitFormat("$number$");
 		kdtEntry_person__PromptBox.setEditFormat("$number$");
+		
+		ObjectValueRender kdtEntry_person__OVR = new ObjectValueRender();
+		kdtEntry_person__OVR.setFormat(new com.kingdee.bos.ctrl.extendcontrols.BizDataFormat("$number$"));
+		
         this.tblProjectManager.getColumn(COL_MANAGERNUM).setEditor(new KDTDefaultCellEditor(kdtEntry_person__PromptBox));
+        this.tblProjectManager.getColumn(COL_MANAGERNUM).setRenderer(kdtEntry_person__OVR);
         this.tblProjectManager.getColumn(COL_MANAGERNUM).setRequired(true);
         
         this.tblProjectManager.getColumn(COL_MANAGERNAME).getStyleAttributes().setLocked(true);

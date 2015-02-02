@@ -24,13 +24,7 @@ import com.kingdee.eas.cp.bc.BaseDataEnum;
 import com.kingdee.eas.cp.bc.BaseDataMatchCollection;
 import com.kingdee.eas.cp.bc.BaseDataMatchEntryInfo;
 import com.kingdee.eas.cp.bc.BaseDataMatchFactory;
-import com.kingdee.eas.cp.bc.Bc2K3VoucherFacadeFactory;
-import com.kingdee.eas.cp.bc.BizAccountBillCollection;
-import com.kingdee.eas.cp.bc.BizAccountBillFactory;
 import com.kingdee.eas.cp.bc.CreateK3PayNoticeBillFacadeFactory;
-import com.kingdee.eas.cp.bc.DailyLoanBillCollection;
-import com.kingdee.eas.cp.bc.DailyLoanBillFactory;
-import com.kingdee.eas.cp.bc.StateEnum;
 import com.kingdee.eas.tools.datatask.DatataskParameter;
 import com.kingdee.eas.tools.datatask.client.DatataskCaller;
 import com.kingdee.eas.util.SysUtil;
@@ -253,6 +247,8 @@ public class BaseDataMatchEditUI extends AbstractBaseDataMatchEditUI
     		}
     	}*/
     	//CreateK3PayNoticeBillFacadeFactory.getRemoteInstance().createByDailyLoanBill(BOSUuid.read("Al0fboWXS066FwC/5HDktIEQqrI="));
+    	CreateK3PayNoticeBillFacadeFactory.getRemoteInstance().createByBizAccountBill(BOSUuid.read("r/JeYZhhTW2pkRThk/2J4UpE9J8="));
+    	
     	
     	
     	//Bc2K3VoucherFacadeFactory.getRemoteInstance().crVouchByBizAccount("BXD-Dec 24, 2014 2:34-000090");
@@ -265,7 +261,7 @@ public class BaseDataMatchEditUI extends AbstractBaseDataMatchEditUI
     		}
     	}
     	*/
-    	//Person[] ps = CostProjectMgrPersonFacadeFactory.getRemoteInstance().getPersonObjsByOrg(coll.get(0));
+    	//Person[] ps = CostProjectMgrPersonFacadeFactory.getRemoteInstance().getPersonObjsByOrg(BOSUuid.read("7sh/dqYjTNWCgvX7HbJ8ScVwA7w="));
     	
     	
     	checkModified();
@@ -291,7 +287,7 @@ public class BaseDataMatchEditUI extends AbstractBaseDataMatchEditUI
     	    }else if(BaseDataEnum.ORGUNIT.equals(types)){
     	    	solutionName = "eas.60fi.70cpbc.BaseDataOrgUnitImport";
     	    }else if(BaseDataEnum.DEPARTMENT.equals(types)){
-    	    	solutionName = "eas.60fi.70cpbc.BaseDataDepartmentImport";
+    	    	solutionName = "eas.60fi.70cpbc.BaseDataDeptImport";
     	    }else if(BaseDataEnum.PROJECT.equals(types)){
     	    	solutionName = "eas.60fi.70cpbc.BaseDataProjectImport";
     	    }else if(BaseDataEnum.PERSON.equals(types)){

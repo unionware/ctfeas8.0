@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import com.kingdee.bos.BOSException;
@@ -34,10 +35,13 @@ import com.kingdee.eas.cp.bc.ExpAccException;
 import com.kingdee.eas.cp.bc.ExpenseAccountBillInfo;
 import com.kingdee.eas.cp.bc.OtherExpenseBillEntryFactory;
 import com.kingdee.eas.cp.bc.OtherExpenseBillEntryInfo;
+import com.kingdee.eas.cp.bc.StateEnum;
 import com.kingdee.util.NumericExceptionSubItem;
 
 public class BizAccountBillControllerBeanEx extends
 		BizAccountBillControllerBean {
+	
+	Map<String, BigDecimal> oldReqMap = null;
 
 	public BizAccountBillControllerBeanEx() {
 	}
@@ -45,6 +49,9 @@ public class BizAccountBillControllerBeanEx extends
 	@Override
 	protected IObjectPK _submit(Context ctx, IObjectValue model)
 			throws BOSException, EASBizException {
+		
+		initOldReqMap(ctx, model); //先处理好上次反写金额
+		
 		IObjectPK pk =  super._submit(ctx, model);
 		
 		afterSubmit(ctx, model);
@@ -55,6 +62,9 @@ public class BizAccountBillControllerBeanEx extends
 	@Override
 	protected void _submit(Context ctx, IObjectPK pk, IObjectValue model)
 			throws BOSException, EASBizException {
+		
+		initOldReqMap(ctx, model); //先处理好上次反写金额
+		
 		super._submit(ctx, pk, model);
 		
 		afterSubmit(ctx, model);
@@ -278,6 +288,45 @@ public class BizAccountBillControllerBeanEx extends
 		checkEntry(ctx,info);
 	}
 	
+	protected void initOldReqMap(Context ctx, IObjectValue model) throws EASBizException, BOSException{
+		oldReqMap = new HashMap<String, BigDecimal>();
+		
+		if(model==null || ((BizAccountBillInfo)model).getId()==null){
+			return;
+		}
+		
+		SelectorItemCollection sic = new SelectorItemCollection();
+		sic.add("state");
+		sic.add("ReqCheckEntries.*");
+		BizAccountBillInfo bill = getBizAccountBillInfo(ctx, new ObjectUuidPK(((BizAccountBillInfo)model).getId().toString()), sic);
+		BizAccountBillReqCheckEntryInfo reqInfo = null;
+		OtherExpenseBillEntryInfo otherEntry = null;
+		String key = null;
+		BigDecimal amt = BigDecimal.ZERO;
+		
+		if(bill!=null && bill.getState()!=StateEnum.DRAFT){
+			for(int i=0;i<bill.getReqCheckEntries().size();i++){
+				reqInfo = bill.getReqCheckEntries().get(i);
+				otherEntry = OtherExpenseBillEntryFactory.getLocalInstance(ctx).getOtherExpenseBillEntryInfo(new ObjectUuidPK(reqInfo.getSourceBillEntryID()));
+				
+				amt = reqInfo.getCheckAmount();
+				
+				//封装KEY
+				if(otherEntry.getProject()==null || otherEntry.getProject().getId()==null){
+					key = reqInfo.getSourceBillCostCenterId();
+				}else{
+					key = otherEntry.getProject().getId()+reqInfo.getSourceBillCostCenterId();
+				}
+
+				//设置 项目+成本中心 相同的  可用金额
+				if(oldReqMap.get(key)!=null){
+					amt = amt.add(oldReqMap.get(key));
+				}
+				oldReqMap.put(key, amt);
+			}
+		}
+	}
+	
 	protected void checkEntry(Context ctx, IObjectValue model)
 			throws BOSException, EASBizException {
 		BizAccountBillInfo info = (BizAccountBillInfo)model;
@@ -289,7 +338,7 @@ public class BizAccountBillControllerBeanEx extends
 		BigDecimal aboveQuota1 = BigDecimal.ZERO;
 		DateFormat df = new SimpleDateFormat("yyyy");
 		int year = Integer.parseInt(df.format(info.getBizDate()));
-		ExcessSetCollection excesssetinfos = getExcessSetInfos(ctx, year);
+		ExcessSetCollection excesssetinfos = ExcessSetFactory.getLocalInstance(ctx).getExcessSetInfos(year);//获取符合年份的超额比例集合
 		
 		BizAccountBillReqCheckEntryInfo reqInfo = null;
 		SelectorItemCollection selector = new SelectorItemCollection();
@@ -313,7 +362,10 @@ public class BizAccountBillControllerBeanEx extends
 				costOrgID = otherEntry.getCostedDept().getId().toString();
 				amt = otherEntry.getAmountApproved();
 				
-				aboveQuota1 = getAboveQuota(ctx, project==null?null:project.getId().toString(), expTypeID, costOrgID, excesssetinfos);
+				/*aboveQuota1 = getAboveQuota(ctx, project==null?null:project.getId().toString(), expTypeID, costOrgID, excesssetinfos);
+				aboveQuota = aboveQuota.add(aboveQuota1.divide(new BigDecimal(100), BigDecimal.ROUND_HALF_UP, 2));*/
+				//获取符合条件的超额比例值
+				aboveQuota1 = ExcessSetFactory.getLocalInstance(ctx).getAboveQuota(project==null?null:project.getId().toString(), expTypeID, costOrgID, excesssetinfos);
 				aboveQuota = aboveQuota.add(aboveQuota1.divide(new BigDecimal(100), BigDecimal.ROUND_HALF_UP, 2));
 				
 				amt = otherEntry.getAmountApproved().multiply(aboveQuota).subtract(otherEntry.getAmountUsed());
@@ -354,259 +406,76 @@ public class BizAccountBillControllerBeanEx extends
 			reqMap.put(key, amt);
 		}
 		
+		String str = "";
+		
+		Map<String, BigDecimal> accMap = new HashMap<String, BigDecimal>();
+		Map<String, String> strMap = new HashMap<String, String>();
 		for (int i = 0; i < info.getEntries().size(); i++) {
+			str = "";
 			entry = info.getEntries().get(i);
 			aboveQuota = BigDecimal.ONE;
 			project = entry.getProject();
 			expTypeID = entry.getExpenseType().getId().toString();
 			costOrgID = entry.getCostCenter().getId().toString();
 			amt = entry.getAmount();
-			
-			if(entry.getSubmitUseAmt()!=null){
-				amt = amt.subtract(entry.getSubmitUseAmt());
-			}
 
 			//封装KEY
 			if(project==null || project.getId()==null){
 				key = costOrgID;
 			}else{
 				key = project.getId()+costOrgID;
+				str = "项目（"+project.getName()+"）、";
 			}
+			str = str + "费用归属部门（"+entry.getCostCenter().getName()+"）";
 
-			/*//设置 项目+成本中心 相同的  可用金额
-			if(reqMap.get(key)!=null){
-				amt = amt.add(reqMap.get(key));
+			//设置 项目+成本中心 相同的  本次申请金额
+			if(accMap.get(key)!=null){
+				amt = amt.add(accMap.get(key));
 			}
-			reqMap.put(key, amt);*/
+			accMap.put(key, amt);
 			
-			//设置 项目+成本中心 相同的  可用金额
-			if(reqMap.get(key)!=null){
+			strMap.put(key, str);
+		}
+		
+		if(info.getReqCheckEntries().size()>0){
+			/*//设置 项目+成本中心 相同的  可用金额
+			if(accMap.size()>0){
 				//校验是否超出了费用申请额范围
 				//校验【费用报销单】费用清单分录中的“本位币申请金额”-【冲借款】分录中的对应“项目+费用类型+费用归属部门”的“本次冲销金额”
 				//必须小于等于关联【费用申请单】费用清单分录中的“本位币申请金额” * （1+超额比例）-“本位币已用金额”-已提交反写可用金额
 				if(amt.compareTo(reqMap.get(key))>0){
-					 throw new ExpAccException(new NumericExceptionSubItem("1111","项目："+project.getName()+"，费用归属部门："+entry.getCostCenter().getName()+"申请金额本位币（扣减冲借款）已经超过费用申请单本位币申请金额！"));
+					 throw new ExpAccException(new NumericExceptionSubItem("1111",str+"的本位币申请金额（"+amt+"）已超过可申请报销金额（"+reqMap.get(key).setScale(2, BigDecimal.ROUND_HALF_UP)+"）！"));
 				}
 			}else if(amt!=null && amt.compareTo(BigDecimal.ZERO)>0){
-				throw new ExpAccException(new NumericExceptionSubItem("1111","项目："+project.getName()+"，费用归属部门："+entry.getCostCenter().getName()+"申请金额本位币（扣减冲借款）已经超过费用申请单本位币申请金额！"));
+				throw new ExpAccException(new NumericExceptionSubItem("1111",str+"的本位币申请金额（"+amt+"）已超过可申请报销金额（0）！"));
+			}*/
+			if(oldReqMap!=null && oldReqMap.size()>0){
+				for(Iterator<String> it=reqMap.keySet().iterator();it.hasNext();){
+					key = it.next();
+					amt = reqMap.get(key);
+					if(oldReqMap.get(key)!=null){
+						amt = amt.add(oldReqMap.get(key));
+					}
+					reqMap.put(key, amt);
+				}
 			}
-		}
-	}
-	
-	protected void checkEntry1(Context ctx, IObjectValue model)
-			throws BOSException, EASBizException {
-		BizAccountBillInfo info = (BizAccountBillInfo)model;
-		BizAccountBillEntryInfo entry = null;
-		BizAccountBillLoanCheckEntryInfo loan = null;
-		/*PurContractEntryInfo purEntry = null;*/
-		OtherExpenseBillEntryInfo otherEntry = null;
-		BigDecimal aboveQuota = BigDecimal.ONE;
-		BigDecimal aboveQuota1 = BigDecimal.ZERO;
-		DateFormat df = new SimpleDateFormat("yyyy");
-		int year = Integer.parseInt(df.format(info.getBizDate()));
-		ExcessSetCollection excesssetinfos = getExcessSetInfos(ctx, year);
-		
-		BigDecimal checkAmount = null;
-		BigDecimal subAmt = null;
-		BigDecimal loanAmt = null;
-		for (int i = 0; i < info.getEntries().size(); i++) {
-			entry = info.getEntries().get(i);
-			aboveQuota = BigDecimal.ONE;
 			
-			if(entry.getSourceBillEntryID()!=null && entry.getSourceBillID()!=null && "E76173AD".equalsIgnoreCase(BOSUuid.read(entry.getSourceBillID()).getType().toString())){
-
-				SelectorItemCollection selector = new SelectorItemCollection();
-				selector.add("*");
-				otherEntry = OtherExpenseBillEntryFactory.getLocalInstance(ctx).getOtherExpenseBillEntryInfo(new ObjectUuidPK(entry.getSourceBillEntryID()),selector);
-				
-				ProjectInfo project = otherEntry.getProject();
-				String expTypeID = otherEntry.getExpenseType().getId().toString();
-				String costOrgID = otherEntry.getCostedDept().getId().toString();
-				BigDecimal amt = entry.getAmount();
-				
-				ProjectInfo project1 = null;
-				String expType1 = null;
-				String costOrg1 = null;
-				
-				checkAmount = null;
-				subAmt = amt;
-				loanAmt = BigDecimal.ZERO;
-				
-				for(int j=0;j<info.getLoanCheckEntries().size();j++){
-					loan = info.getLoanCheckEntries().get(j);
-					project1 = loan.getProject();
-					expType1 = loan.getSourceBillExpenseTypeId();
-					costOrg1 = loan.getSourceBillCostCenterId();
-					checkAmount = loan.getCheckAmount();
-					if(project1==project && expType1==expTypeID && costOrgID==costOrg1){
-						subAmt = subAmt.subtract(checkAmount);
-						
-						loanAmt = loanAmt.add(checkAmount);
+			//设置 项目+成本中心 相同的  可用金额
+			for(Iterator<String> it=accMap.keySet().iterator();it.hasNext();){
+				key = it.next();
+				if(reqMap.get(key)!=null){
+					//校验是否超出了费用申请额范围
+					//校验【费用报销单】费用清单分录中的“本位币申请金额”-【冲借款】分录中的对应“项目+费用类型+费用归属部门”的“本次冲销金额”
+					//必须小于等于关联【费用申请单】费用清单分录中的“本位币申请金额” * （1+超额比例）-“本位币已用金额”-已提交反写可用金额
+					if(accMap.get(key).compareTo(reqMap.get(key))>0){
+						 throw new ExpAccException(new NumericExceptionSubItem("1111",strMap.get(key)+"的本位币申请金额（"+accMap.get(key).setScale(2, BigDecimal.ROUND_HALF_UP)+"）已超过可申请报销金额（"+reqMap.get(key).setScale(2, BigDecimal.ROUND_HALF_UP)+"）！"));
 					}
-				}
-				/*if ("E76173AD".equalsIgnoreCase(BOSUuid.read(entry.getSourceBillID()).getType().toString())) {// 费用申请单分录*/					
-				
-				aboveQuota1 = getAboveQuota(ctx, project==null?null:project.getId().toString(), expTypeID, costOrgID, excesssetinfos);
-				aboveQuota = aboveQuota.add(aboveQuota1.divide(new BigDecimal(100), BigDecimal.ROUND_HALF_UP, 2));
-
-				//校验是否超出了费用申请额范围
-				//校验【费用报销单】费用清单分录中的“本位币申请金额”-【冲借款】分录中的对应“项目+费用类型+费用归属部门”的“本次冲销金额”
-				//必须小于等于关联【费用申请单】费用清单分录中的“本位币申请金额” * （1+超额比例）-“本位币已用金额”-已提交反写可用金额
-				if(entry.getSubmitUseAmt()!=null){
-					if(subAmt.compareTo(otherEntry.getAmountApproved().multiply(aboveQuota).subtract(otherEntry.getAmountUsed().subtract(entry.getSubmitUseAmt())))>0){
-//							 throw new ExpAccException(new NumericExceptionSubItem("1111",project.getName()+"项目，"+entry.getExpenseType().getName()+"费用类型，"+entry.getCostCenter().getName()+"费用归属部门，本次申请金额（扣减冲借款）超出费用申请单的可申请金额("+otherEntry.getAmount().multiply(aboveQuota).subtract(otherEntry.getAmountUsed().subtract(entry.getSubmitUseAmt()))+")"));
-						 throw new ExpAccException(new NumericExceptionSubItem("1111","分录"+entry.getSeq()+"申请金额本位币（扣减冲借款）（"+subAmt+"）已经超过费用申请单本位币申请金额（"+otherEntry.getAmount().multiply(aboveQuota).subtract(otherEntry.getAmountUsed().subtract(entry.getSubmitUseAmt()))+"）允许的超额比例（"+aboveQuota1+"%）！"));
-					}
-
-					//校验是否超出了预算额范围
-					//校验（关联的【费用申请单】的费用清单分录中的 “本位币申请金额”-【费用申请单】的费用清单分录中的“本位币已用金额”-已提交反写可用金额-
-					//（【费用报销单】费用清单分录中的“本位币申请金额”-【冲借款】分录中的对应“项目+费用类型+费用归属部门”的“本次冲销金额”））
-					//的绝对值必须小于等于该“项目+费用类型+费用归属部门”对应的预算可用金额
-					/*if(otherEntry.getBudgetAmount().compareTo(otherEntry.getAmount().subtract(otherEntry.getAmountUsed().subtract(entry.getSubmitUseAmt())).subtract(entry.getAmount()).subtract(loanAmt))>0){
-						 throw new ExpAccException(new NumericExceptionSubItem("1111","本次申请金额超出预算额范围"));
-					}*/
-				}else{
-					if(subAmt.compareTo(otherEntry.getAmountApproved().multiply(aboveQuota).subtract(otherEntry.getAmountUsed()))>0){
-//							 throw new ExpAccException(new NumericExceptionSubItem("1111",project.getName()+"，"+entry.getExpenseType().getName()+"，"+entry.getCostCenter().getName()+"，本次申请金额（扣减冲借款）超出费用申请单的可申请金额("+otherEntry.getAmount().multiply(aboveQuota).subtract(otherEntry.getAmountUsed())+")"));
-						 throw new ExpAccException(new NumericExceptionSubItem("1111","分录"+entry.getSeq()+"申请金额本位币（扣减冲借款）（"+subAmt+"）已经超过费用申请单本位币申请金额（"+otherEntry.getAmount().multiply(aboveQuota).subtract(otherEntry.getAmountUsed())+"）允许的超额比例（"+aboveQuota1+"%）！"));
-					}
-
-					//校验是否超出了预算额范围
-					//校验（关联的【费用申请单】的费用清单分录中的 “本位币申请金额”-【费用申请单】的费用清单分录中的“本位币已用金额”-
-					//（【费用报销单】费用清单分录中的“本位币申请金额”-【冲借款】分录中的对应“项目+费用类型+费用归属部门”的“本次冲销金额”））
-					//的绝对值必须小于等于该“项目+费用类型+费用归属部门”对应的预算可用金额
-					/*if(otherEntry.getBudgetAmount().compareTo(otherEntry.getAmount().subtract(otherEntry.getAmountUsed()).subtract(entry.getAmount()).subtract(loanAmt))>0){
-						 throw new ExpAccException(new NumericExceptionSubItem("1111","本次申请金额超出预算额范围"));
-					}*/
-				}
-				/*}*/
-			}
-		}
-	}
-
-	/**
-	 * 获取超额比例
-	 * 
-	 * @return
-	 * @throws BOSException
-	 */
-	private BigDecimal getAboveQuota(Context ctx, String projectid,
-			String expenseTypeid, String costcenterid,
-			ExcessSetCollection excesssetInfos) throws BOSException {
-		BigDecimal AboveRate = new BigDecimal("0.00");
-		String setprojectid = null;
-		String setexpenseTypeid = null;
-		String setcostcenterid = null;
-		boolean flag = false;
-
-		if (projectid!=null && isExistProject(excesssetInfos, projectid)) {
-			if (excesssetInfos != null && excesssetInfos.size() > 0) {
-				for (int i = 0; i < excesssetInfos.size(); i++) {
-					flag = false;
-					if(excesssetInfos.get(i).getProject()!=null){
-						setprojectid = excesssetInfos.get(i).getProject().getId()
-								.toString();
-						setexpenseTypeid = excesssetInfos.get(i).getExpenseType()
-								.getId().toString();
-
-						if (projectid.equalsIgnoreCase(setprojectid) && expenseTypeid.equalsIgnoreCase(setexpenseTypeid)) {
-							for (int j = 0; j < excesssetInfos.get(i).getEntry().size(); i++) {
-								setcostcenterid = excesssetInfos.get(i).getEntry().get(
-										j).getCostCenter().getId().toString();
-								if (costcenterid.equalsIgnoreCase(setcostcenterid)) {
-									AboveRate = excesssetInfos.get(i).getEntry().get(j).getRate();
-									flag = true;
-									break;
-								}
-							}
-							if(!flag){
-								AboveRate = excesssetInfos.get(i).getRate();
-								break;
-							}
-						}
-					}
-				}
-			}
-		} else {
-			if (excesssetInfos != null && excesssetInfos.size() > 0) {
-				for (int i = 0; i < excesssetInfos.size(); i++) {
-					flag = false;
-					setexpenseTypeid = excesssetInfos.get(i).getExpenseType().getId().toString();
-					if (excesssetInfos.get(i).getProject()==null && expenseTypeid.equalsIgnoreCase(setexpenseTypeid)) {
-						for (int j = 0; j < excesssetInfos.get(i).getEntry().size(); i++) {
-							setcostcenterid = excesssetInfos.get(i).getEntry().get(j).getCostCenter().getId().toString();
-							if (costcenterid.equalsIgnoreCase(setcostcenterid)) {
-								AboveRate = excesssetInfos.get(i).getEntry().get(j).getRate();
-								flag = true;
-								break;
-							}
-						}
-						if(!flag){
-							AboveRate = excesssetInfos.get(i).getRate();
-							break;
-						}
-					}
+				}else if(accMap.get(key)!=null && accMap.get(key).compareTo(BigDecimal.ZERO)>0){
+					throw new ExpAccException(new NumericExceptionSubItem("1111",strMap.get(key)+"的本位币申请金额（"+accMap.get(key).setScale(2, BigDecimal.ROUND_HALF_UP)+"）已超过可申请报销金额（0）！"));
 				}
 			}
 		}
-		return AboveRate;
 	}
-
-	/**
-	 * 判断当前项目是否存在于超额比例设置中
-	 * 
-	 * @param excesssetInfos
-	 * @param projectid
-	 * @return
-	 */
-	private boolean isExistProject(ExcessSetCollection excesssetInfos,
-			String projectid) {
-		if (excesssetInfos != null && excesssetInfos.size() > 0) {
-			for (int i = 0; i < excesssetInfos.size(); i++) {
-				if(excesssetInfos.get(i).getProject()!=null){
-					String setProjectid = excesssetInfos.get(i).getProject()
-							.getId().toString();
-					if (setProjectid.equalsIgnoreCase(projectid)) {
-						return true;
-					}
-				}
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * 获取当前报销对应的年份的超额设置
-	 * 
-	 * @param ctx
-	 * @param year
-	 * @return ExcessSetCollection
-	 * @throws BOSException
-	 */
-	private ExcessSetCollection getExcessSetInfos(Context ctx, int year)
-			throws BOSException {
-		// 
-		EntityViewInfo viewInfo = new EntityViewInfo();
-        SelectorItemCollection selector = new SelectorItemCollection();
-        selector.add(new SelectorItemInfo("id"));
-        selector.add(new SelectorItemInfo("*"));
-        selector.add(new SelectorItemInfo("entry.id"));
-        selector.add(new SelectorItemInfo("entry.*"));
-        selector.add(new SelectorItemInfo("entry.costCenter.*"));
-		FilterInfo filter = new FilterInfo();
-		filter.getFilterItems().add(
-				new FilterItemInfo("year", year, CompareType.EQUALS));
-		filter.getFilterItems().add(
-				new FilterItemInfo("isEnable", 1, CompareType.EQUALS));
-		filter.setMaskString("#0 AND #1");
-		viewInfo.setFilter(filter);
-		viewInfo.setSelector(selector);
-		ExcessSetCollection excesssetInfos = ExcessSetFactory.getLocalInstance(
-				ctx).getExcessSetCollection(viewInfo);
-
-		return excesssetInfos;
-	}
-	
 	
 	protected void _antiAudit(Context ctx, BOSUuid billId) throws BOSException,
 			EASBizException {

@@ -35,6 +35,8 @@ import com.kingdee.eas.basedata.org.PositionMemberCollection;
 import com.kingdee.eas.basedata.org.PositionMemberFactory;
 import com.kingdee.eas.common.EASBizException;
 import com.kingdee.eas.cp.bc.BizCollBillBaseInfo;
+import com.kingdee.eas.cp.bc.K3ConstantConfigCollection;
+import com.kingdee.eas.cp.bc.K3ConstantConfigFactory;
 import com.kingdee.eas.cp.bc.app.dbutil.K3WebAccConfigInfos;
 
 public class CostProjectMgrPersonFacadeControllerBean extends AbstractCostProjectMgrPersonFacadeControllerBean
@@ -53,6 +55,11 @@ public class CostProjectMgrPersonFacadeControllerBean extends AbstractCostProjec
     //按费用部门取
     protected Person[] _getPersonObjsByOrg(Context ctx, BOSUuid billId)
     		throws BOSException, EASBizException {
+    	if(billId==null){
+    		logger.info("按费用部门取ID  is null");
+    		return null;
+    	}
+    	logger.info("按费用部门取ID :"+billId.toString());
     	BizCollBillBaseInfo bill = getSourceObj(ctx, billId);
     	Set<Person> persons = getPersonByOrg(ctx, bill);
     	Person[] t = null;
@@ -75,6 +82,7 @@ public class CostProjectMgrPersonFacadeControllerBean extends AbstractCostProjec
     private BizCollBillBaseInfo getSourceObj(Context ctx,BOSUuid id) throws BOSException{
     	IDynamicObject iDynamicObject = DynamicObjectFactory.getLocalInstance(ctx);
     	BizCollBillBaseInfo billInfo = (BizCollBillBaseInfo)iDynamicObject.getValue(id.getType(), new ObjectUuidPK(id), getSelector());
+    	
     	return billInfo; 
     }
     
@@ -118,6 +126,11 @@ public class CostProjectMgrPersonFacadeControllerBean extends AbstractCostProjec
     //按项目取
     protected Person[] _getPersonObjsByBill(Context ctx, BOSUuid billId)
     		throws BOSException, EASBizException {
+    	if(billId==null){
+    		logger.info("按项目取ID  is null");
+    		return null;
+    	}
+    	logger.info("按项目取ID :"+billId.toString());
     	BizCollBillBaseInfo bill = getSourceObj(ctx, billId);
     	Set<Person> persons = getPersonByBill(ctx, bill);
     	Person[] t = null;
@@ -155,7 +168,7 @@ public class CostProjectMgrPersonFacadeControllerBean extends AbstractCostProjec
     	BizCollBillBaseInfo info = (BizCollBillBaseInfo)bill;
     	AbstractObjectCollection entrys = getBillEntrys(info);
     	Set<String> orgList = getOrgs(entrys);
-    	Set<Person> persons =  getOrgMainPerson(ctx,orgList,K3WebAccConfigInfos.getChargeName(ctx));
+    	Set<Person> persons =  getOrgMainPerson(ctx,orgList,getValByNum(ctx,K3WebAccConfigInfos.NUM_CHARGE_NAME));
     	return persons;
     }
     
@@ -195,20 +208,25 @@ public class CostProjectMgrPersonFacadeControllerBean extends AbstractCostProjec
      */
     private Set<String> getOrgs(AbstractObjectCollection entrys){
     	Set<String> projectSet = new HashSet<String>();
+    	logger.info("获取单据费用部门ID集合entrys.size()="+entrys.size());
+    	StringBuffer pjStr = new StringBuffer();
     	if(entrys!=null && entrys.size()>0){
     		CostCenterOrgUnitInfo orgUnit = null;
     		for(int i=0;i<entrys.size();i++){
     			orgUnit = (CostCenterOrgUnitInfo)entrys.getObject(i).get("costCenter");//报销单
     			if(orgUnit==null){
-    					orgUnit = (CostCenterOrgUnitInfo)entrys.getObject(i).get("costedDept"); //申请单，借款单
+    					orgUnit = (CostCenterOrgUnitInfo)entrys.getObject(i).get("costedDept"); //申请单，出差借款单
     					if(orgUnit==null){
-    	    				continue;
+    						orgUnit = (CostCenterOrgUnitInfo)entrys.getObject(i).get("costDept"); // 借款单
+    	    			}else{
+    	    				logger.info("没有获取到费用部门字段");
     	    			}
     			}
-    			
+    			pjStr.append(orgUnit.getId().toString()+",");
     			projectSet.add(orgUnit.getId().toString());
     		}
     	}
+    	logger.info("获取单据费用部门ID集合orgSet.size()="+projectSet.size()+"   prjStr+"+pjStr.toString());
     	return projectSet;
     }
     
@@ -264,13 +282,16 @@ public class CostProjectMgrPersonFacadeControllerBean extends AbstractCostProjec
     	filter.getFilterItems().add(new FilterItemInfo("adminOrgUnit.id",orgSet,CompareType.INCLUDE));
     	filter.getFilterItems().add(new FilterItemInfo("name",posistionName));
     	
+    	
     	//职位 + 组织
     	PositionCollection pcoll =  PositionFactory.getLocalInstance(ctx).getPositionCollection(view);
-    	
     	Set<String> postionSet =new HashSet<String>();//职位ID
+    	StringBuffer postionStr = new StringBuffer();
     	for(int i=0;i<pcoll.size();i++){
+    		postionStr.append(pcoll.get(i).getId().toString()+",");
     		postionSet.add(pcoll.get(i).getId().toString());
     	}
+    	logger.info("posistionName = "+posistionName+"   orgSet.size()="+orgSet.size()+"  postionSet.size()= "+postionSet.size()+"  str="+postionStr.toString());
     	
     	filter.getFilterItems().clear();
     	filter.getFilterItems().add(new FilterItemInfo("position.id",postionSet,CompareType.INCLUDE));
@@ -279,6 +300,7 @@ public class CostProjectMgrPersonFacadeControllerBean extends AbstractCostProjec
     	
     	
     	Set<String> personSet =new HashSet<String>(); //职员
+    	 
     	for(int i=0;i<positionColl.size();i++){
     		personSet.add(positionColl.get(i).getPerson().getId().toString());
     	}
@@ -303,6 +325,19 @@ public class CostProjectMgrPersonFacadeControllerBean extends AbstractCostProjec
     private String[] convertObj2Str(Set<Person> person){
     	return null;
     }
+    
+    private  String getValByNum(Context ctx,String number) throws BOSException {
+		EntityViewInfo view = new EntityViewInfo();
+		FilterInfo filter = new FilterInfo();
+		view.setFilter(filter);
+		filter.getFilterItems().add(new FilterItemInfo("number",number));
+		K3ConstantConfigCollection coll =  K3ConstantConfigFactory.getLocalInstance(ctx).getK3ConstantConfigCollection(view);
+		if(coll!=null && coll.size()>0){
+			return coll.get(0).getVal();
+		}else{
+			return null;
+		}
+	}
     
 
 }

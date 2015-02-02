@@ -19,6 +19,8 @@ import com.kingdee.bos.metadata.entity.SelectorItemCollection;
 import com.kingdee.bos.metadata.entity.SelectorItemInfo;
 import com.kingdee.bos.metadata.query.util.CompareType;
 import com.kingdee.bos.util.BOSUuid;
+import com.kingdee.eas.basedata.assistant.AccountBankCollection;
+import com.kingdee.eas.basedata.assistant.AccountBankFactory;
 import com.kingdee.eas.basedata.assistant.ProjectInfo;
 import com.kingdee.eas.basedata.org.CostCenterOrgUnitInfo;
 import com.kingdee.eas.common.EASBizException;
@@ -66,6 +68,22 @@ public class EvectionLoanBillControllerBeanEx extends
 //			loanBillInfo.setIsFirstCreateFrom(1);
 //		}
 		//checkDailyAmount(arg0, loanBillInfo);
+		
+		EntityViewInfo view  = new EntityViewInfo();
+		FilterInfo filter = new FilterInfo();
+		view.setFilter(filter);
+		filter.getFilterItems().add(new FilterItemInfo("company.id",loanBillInfo.getCompany().getId().toString()));
+		filter.getFilterItems().add(new FilterItemInfo("description","基本户"));
+		AccountBankCollection coll =  AccountBankFactory.getLocalInstance(arg0).getAccountBankCollection(view);
+	/*	if(coll==null || coll.size()<1){
+			throw new EASBizException(new NumericExceptionSubItem("fffff","无法根据费用支付公司找到银行帐号("+loanBillInfo.getCompany().getName()+",基本户"+")!"));
+		}
+		if(coll.size()>1){
+			throw new EASBizException(new NumericExceptionSubItem("fffff","根据费用支付公司找到多个银行帐号,无法确定使用哪一个("+loanBillInfo.getCompany().getName()+",基本户"+"!"));
+		}*/
+		
+		loanBillInfo.setPayCompany(coll.get(0));
+		
 		return super._save(arg0, arg1);
 	}
 	@Override
@@ -78,6 +96,21 @@ public class EvectionLoanBillControllerBeanEx extends
 			sql = "update T_BC_EvectionLoanBillEntry SET CFLastSubmitAmt = FAmount where FBillID='" + loanBillInfo.getId().toString() + "'";
 			DbUtil.execute(arg0, sql);
 		}
+		
+		EntityViewInfo view  = new EntityViewInfo();
+		FilterInfo filter = new FilterInfo();
+		view.setFilter(filter);
+		filter.getFilterItems().add(new FilterItemInfo("company.id",loanBillInfo.getCompany().getId().toString()));
+		filter.getFilterItems().add(new FilterItemInfo("description","基本户"));
+		AccountBankCollection coll =  AccountBankFactory.getLocalInstance(arg0).getAccountBankCollection(view);
+		/*if(coll==null || coll.size()<1){
+			throw new EASBizException(new NumericExceptionSubItem("fffff","无法根据费用支付公司找到银行帐号("+loanBillInfo.getCompany().getName()+",基本户"+")!"));
+		}
+		if(coll.size()>1){
+			throw new EASBizException(new NumericExceptionSubItem("fffff","根据费用支付公司找到多个银行帐号,无法确定使用哪一个("+loanBillInfo.getCompany().getName()+",基本户"+"!"));
+		}*/
+		
+		loanBillInfo.setPayCompany(coll.get(0));
 		return super._submit(arg0, arg1);
 		
 	}

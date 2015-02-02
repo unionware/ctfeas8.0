@@ -65,7 +65,7 @@ public class PositionLevelEditUI extends AbstractPositionLevelEditUI
 		ie.checkNumberBlank(this.editData);
 		ie.checkNameBlank(this.editData);
 		ie.checkNumberDup(this.editData);
-		ie.checkNameDup(this.editData);
+//		ie.checkNameDup(this.editData);
 	}
 
     /**

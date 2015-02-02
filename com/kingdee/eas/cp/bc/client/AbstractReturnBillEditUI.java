@@ -51,8 +51,6 @@ public abstract class AbstractReturnBillEditUI extends com.kingdee.eas.framework
     protected com.kingdee.bos.ctrl.swing.KDLabelContainer contLastUpdateUser;
     protected com.kingdee.bos.ctrl.swing.KDLabelContainer contLastUpdateTime;
     protected com.kingdee.bos.ctrl.swing.KDLabelContainer contAuditor;
-    protected com.kingdee.bos.ctrl.kdf.table.KDTable kdtEntrys;
-	protected com.kingdee.eas.framework.client.multiDetail.DetailPanel kdtEntrys_detailPanel = null;
     protected com.kingdee.bos.ctrl.swing.KDLabelContainer contloanBillNumber;
     protected com.kingdee.bos.ctrl.swing.KDLabelContainer contloanAmount;
     protected com.kingdee.bos.ctrl.swing.KDLabelContainer contloanor;
@@ -62,6 +60,7 @@ public abstract class AbstractReturnBillEditUI extends com.kingdee.eas.framework
     protected com.kingdee.bos.ctrl.swing.KDLabelContainer contauditDate;
     protected com.kingdee.bos.ctrl.swing.KDLabelContainer contremark;
     protected com.kingdee.bos.ctrl.swing.KDComboBox returnBillType;
+    protected com.kingdee.bos.ctrl.swing.KDContainer kDContainer1;
     protected com.kingdee.bos.ctrl.extendcontrols.KDBizPromptBox prmtCreator;
     protected com.kingdee.bos.ctrl.swing.KDDatePicker kDDateCreateTime;
     protected com.kingdee.bos.ctrl.extendcontrols.KDBizPromptBox prmtLastUpdateUser;
@@ -75,6 +74,7 @@ public abstract class AbstractReturnBillEditUI extends com.kingdee.eas.framework
     protected com.kingdee.bos.ctrl.swing.KDComboBox billState;
     protected com.kingdee.bos.ctrl.swing.KDDatePicker pkauditDate;
     protected com.kingdee.bos.ctrl.swing.KDTextField txtremark;
+    protected com.kingdee.bos.ctrl.kdf.table.KDTable kdtEntrys;
     protected com.kingdee.bos.ctrl.swing.KDWorkButton btnAudit;
     protected com.kingdee.eas.cp.bc.ReturnBillInfo editData = null;
     protected ActionAudit actionAudit = null;
@@ -150,7 +150,6 @@ public abstract class AbstractReturnBillEditUI extends com.kingdee.eas.framework
         this.contLastUpdateUser = new com.kingdee.bos.ctrl.swing.KDLabelContainer();
         this.contLastUpdateTime = new com.kingdee.bos.ctrl.swing.KDLabelContainer();
         this.contAuditor = new com.kingdee.bos.ctrl.swing.KDLabelContainer();
-        this.kdtEntrys = new com.kingdee.bos.ctrl.kdf.table.KDTable();
         this.contloanBillNumber = new com.kingdee.bos.ctrl.swing.KDLabelContainer();
         this.contloanAmount = new com.kingdee.bos.ctrl.swing.KDLabelContainer();
         this.contloanor = new com.kingdee.bos.ctrl.swing.KDLabelContainer();
@@ -160,6 +159,7 @@ public abstract class AbstractReturnBillEditUI extends com.kingdee.eas.framework
         this.contauditDate = new com.kingdee.bos.ctrl.swing.KDLabelContainer();
         this.contremark = new com.kingdee.bos.ctrl.swing.KDLabelContainer();
         this.returnBillType = new com.kingdee.bos.ctrl.swing.KDComboBox();
+        this.kDContainer1 = new com.kingdee.bos.ctrl.swing.KDContainer();
         this.prmtCreator = new com.kingdee.bos.ctrl.extendcontrols.KDBizPromptBox();
         this.kDDateCreateTime = new com.kingdee.bos.ctrl.swing.KDDatePicker();
         this.prmtLastUpdateUser = new com.kingdee.bos.ctrl.extendcontrols.KDBizPromptBox();
@@ -173,13 +173,13 @@ public abstract class AbstractReturnBillEditUI extends com.kingdee.eas.framework
         this.billState = new com.kingdee.bos.ctrl.swing.KDComboBox();
         this.pkauditDate = new com.kingdee.bos.ctrl.swing.KDDatePicker();
         this.txtremark = new com.kingdee.bos.ctrl.swing.KDTextField();
+        this.kdtEntrys = new com.kingdee.bos.ctrl.kdf.table.KDTable();
         this.btnAudit = new com.kingdee.bos.ctrl.swing.KDWorkButton();
         this.contCreator.setName("contCreator");
         this.contCreateTime.setName("contCreateTime");
         this.contLastUpdateUser.setName("contLastUpdateUser");
         this.contLastUpdateTime.setName("contLastUpdateTime");
         this.contAuditor.setName("contAuditor");
-        this.kdtEntrys.setName("kdtEntrys");
         this.contloanBillNumber.setName("contloanBillNumber");
         this.contloanAmount.setName("contloanAmount");
         this.contloanor.setName("contloanor");
@@ -189,6 +189,7 @@ public abstract class AbstractReturnBillEditUI extends com.kingdee.eas.framework
         this.contauditDate.setName("contauditDate");
         this.contremark.setName("contremark");
         this.returnBillType.setName("returnBillType");
+        this.kDContainer1.setName("kDContainer1");
         this.prmtCreator.setName("prmtCreator");
         this.kDDateCreateTime.setName("kDDateCreateTime");
         this.prmtLastUpdateUser.setName("prmtLastUpdateUser");
@@ -202,6 +203,7 @@ public abstract class AbstractReturnBillEditUI extends com.kingdee.eas.framework
         this.billState.setName("billState");
         this.pkauditDate.setName("pkauditDate");
         this.txtremark.setName("txtremark");
+        this.kdtEntrys.setName("kdtEntrys");
         this.btnAudit.setName("btnAudit");
         // CoreUI		
         this.btnTraceUp.setVisible(false);		
@@ -250,37 +252,6 @@ public abstract class AbstractReturnBillEditUI extends com.kingdee.eas.framework
         this.contAuditor.setBoundLabelLength(100);		
         this.contAuditor.setBoundLabelUnderline(true);		
         this.contAuditor.setEnabled(false);
-        // kdtEntrys
-		String kdtEntrysStrXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><DocRoot xmlns:c=\"http://www.kingdee.com/Common\" xmlns:f=\"http://www.kingdee.com/Form\" xmlns:t=\"http://www.kingdee.com/Table\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.kingdee.com/KDF KDFSchema.xsd\" version=\"0.0\"><Styles><c:Style id=\"sCol0\"><c:Protection hidden=\"true\" /></c:Style><c:Style id=\"sCol1\"><c:NumberFormat>&amp;date</c:NumberFormat></c:Style><c:Style id=\"sCol2\"><c:NumberFormat>&amp;double</c:NumberFormat></c:Style></Styles><Table id=\"KDTable\"><t:Sheet name=\"sheet1\"><t:Table t:selectMode=\"15\" t:mergeMode=\"0\" t:dataRequestMode=\"0\" t:pageRowCount=\"100\"><t:ColumnGroup><t:Column t:key=\"id\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"-1\" t:styleID=\"sCol0\" /><t:Column t:key=\"returnDate\" t:width=\"100\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"true\" t:index=\"-1\" t:styleID=\"sCol1\" /><t:Column t:key=\"returnAmount\" t:width=\"100\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"true\" t:index=\"-1\" t:styleID=\"sCol2\" /><t:Column t:key=\"remark\" t:width=\"250\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"-1\" /></t:ColumnGroup><t:Head><t:Row t:name=\"header\" t:height=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\"><t:Cell>$Resource{id}</t:Cell><t:Cell>$Resource{returnDate}</t:Cell><t:Cell>$Resource{returnAmount}</t:Cell><t:Cell>$Resource{remark}</t:Cell></t:Row></t:Head></t:Table><t:SheetOptions><t:MergeBlocks><t:Head /></t:MergeBlocks></t:SheetOptions></t:Sheet></Table></DocRoot>";
-		
-        this.kdtEntrys.setFormatXml(resHelper.translateString("kdtEntrys",kdtEntrysStrXML));
-
-                this.kdtEntrys.putBindContents("editData",new String[] {"id","returnDate","returnAmount","remark"});
-
-
-        this.kdtEntrys.checkParsed();
-        KDDatePicker kdtEntrys_returnDate_DatePicker = new KDDatePicker();
-        kdtEntrys_returnDate_DatePicker.setName("kdtEntrys_returnDate_DatePicker");
-        kdtEntrys_returnDate_DatePicker.setVisible(true);
-        kdtEntrys_returnDate_DatePicker.setEditable(true);
-        KDTDefaultCellEditor kdtEntrys_returnDate_CellEditor = new KDTDefaultCellEditor(kdtEntrys_returnDate_DatePicker);
-        this.kdtEntrys.getColumn("returnDate").setEditor(kdtEntrys_returnDate_CellEditor);
-        KDFormattedTextField kdtEntrys_returnAmount_TextField = new KDFormattedTextField();
-        kdtEntrys_returnAmount_TextField.setName("kdtEntrys_returnAmount_TextField");
-        kdtEntrys_returnAmount_TextField.setVisible(true);
-        kdtEntrys_returnAmount_TextField.setEditable(true);
-        kdtEntrys_returnAmount_TextField.setHorizontalAlignment(2);
-        kdtEntrys_returnAmount_TextField.setDataType(1);
-        	kdtEntrys_returnAmount_TextField.setMinimumValue(new java.math.BigDecimal("-1.0E18"));
-        	kdtEntrys_returnAmount_TextField.setMaximumValue(new java.math.BigDecimal("1.0E18"));
-        kdtEntrys_returnAmount_TextField.setPrecision(10);
-        KDTDefaultCellEditor kdtEntrys_returnAmount_CellEditor = new KDTDefaultCellEditor(kdtEntrys_returnAmount_TextField);
-        this.kdtEntrys.getColumn("returnAmount").setEditor(kdtEntrys_returnAmount_CellEditor);
-        KDTextField kdtEntrys_remark_TextField = new KDTextField();
-        kdtEntrys_remark_TextField.setName("kdtEntrys_remark_TextField");
-        kdtEntrys_remark_TextField.setMaxLength(255);
-        KDTDefaultCellEditor kdtEntrys_remark_CellEditor = new KDTDefaultCellEditor(kdtEntrys_remark_TextField);
-        this.kdtEntrys.getColumn("remark").setEditor(kdtEntrys_remark_CellEditor);
         // contloanBillNumber		
         this.contloanBillNumber.setBoundLabelText(resHelper.getString("contloanBillNumber.boundLabelText"));		
         this.contloanBillNumber.setBoundLabelLength(100);		
@@ -323,6 +294,9 @@ public abstract class AbstractReturnBillEditUI extends com.kingdee.eas.framework
         this.contremark.setVisible(true);
         // returnBillType		
         this.returnBillType.addItems(EnumUtils.getEnumList("com.kingdee.eas.cp.bc.ReturnBillTypeEnum").toArray());
+        // kDContainer1		
+        this.kDContainer1.setTitleStyle(2);		
+        this.kDContainer1.setTitle(resHelper.getString("kDContainer1.title"));
         // prmtCreator		
         this.prmtCreator.setEnabled(false);
         // kDDateCreateTime		
@@ -394,6 +368,37 @@ public abstract class AbstractReturnBillEditUI extends com.kingdee.eas.framework
         this.txtremark.setHorizontalAlignment(2);		
         this.txtremark.setMaxLength(255);		
         this.txtremark.setRequired(false);
+        // kdtEntrys
+		String kdtEntrysStrXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><DocRoot xmlns:c=\"http://www.kingdee.com/Common\" xmlns:f=\"http://www.kingdee.com/Form\" xmlns:t=\"http://www.kingdee.com/Table\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.kingdee.com/KDF KDFSchema.xsd\" version=\"0.0\"><Styles><c:Style id=\"sCol0\"><c:Protection hidden=\"true\" /></c:Style><c:Style id=\"sCol1\"><c:NumberFormat>&amp;date</c:NumberFormat></c:Style><c:Style id=\"sCol2\"><c:NumberFormat>&amp;double</c:NumberFormat></c:Style></Styles><Table id=\"KDTable\"><t:Sheet name=\"sheet1\"><t:Table t:selectMode=\"15\" t:mergeMode=\"0\" t:dataRequestMode=\"0\" t:pageRowCount=\"100\"><t:ColumnGroup><t:Column t:key=\"id\" t:width=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"-1\" t:styleID=\"sCol0\" /><t:Column t:key=\"returnDate\" t:width=\"100\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"true\" t:index=\"-1\" t:styleID=\"sCol1\" /><t:Column t:key=\"returnAmount\" t:width=\"100\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"true\" t:index=\"-1\" t:styleID=\"sCol2\" /><t:Column t:key=\"remark\" t:width=\"255\" t:mergeable=\"true\" t:resizeable=\"true\" t:moveable=\"true\" t:group=\"false\" t:required=\"false\" t:index=\"-1\" /></t:ColumnGroup><t:Head><t:Row t:name=\"header1\" t:height=\"-1\" t:mergeable=\"true\" t:resizeable=\"true\"><t:Cell>$Resource{id}</t:Cell><t:Cell>$Resource{returnDate}</t:Cell><t:Cell>$Resource{returnAmount}</t:Cell><t:Cell>$Resource{remark}</t:Cell></t:Row></t:Head></t:Table><t:SheetOptions><t:MergeBlocks><t:Head /></t:MergeBlocks></t:SheetOptions></t:Sheet></Table></DocRoot>";
+		
+        this.kdtEntrys.setFormatXml(resHelper.translateString("kdtEntrys",kdtEntrysStrXML));
+
+                this.kdtEntrys.putBindContents("editData",new String[] {"id","returnDate","returnAmount","remark"});
+
+
+        this.kdtEntrys.checkParsed();
+        KDDatePicker kdtEntrys_returnDate_DatePicker = new KDDatePicker();
+        kdtEntrys_returnDate_DatePicker.setName("kdtEntrys_returnDate_DatePicker");
+        kdtEntrys_returnDate_DatePicker.setVisible(true);
+        kdtEntrys_returnDate_DatePicker.setEditable(true);
+        KDTDefaultCellEditor kdtEntrys_returnDate_CellEditor = new KDTDefaultCellEditor(kdtEntrys_returnDate_DatePicker);
+        this.kdtEntrys.getColumn("returnDate").setEditor(kdtEntrys_returnDate_CellEditor);
+        KDFormattedTextField kdtEntrys_returnAmount_TextField = new KDFormattedTextField();
+        kdtEntrys_returnAmount_TextField.setName("kdtEntrys_returnAmount_TextField");
+        kdtEntrys_returnAmount_TextField.setVisible(true);
+        kdtEntrys_returnAmount_TextField.setEditable(true);
+        kdtEntrys_returnAmount_TextField.setHorizontalAlignment(2);
+        kdtEntrys_returnAmount_TextField.setDataType(1);
+        	kdtEntrys_returnAmount_TextField.setMinimumValue(new java.math.BigDecimal("-1.0E18"));
+        	kdtEntrys_returnAmount_TextField.setMaximumValue(new java.math.BigDecimal("1.0E18"));
+        kdtEntrys_returnAmount_TextField.setPrecision(10);
+        KDTDefaultCellEditor kdtEntrys_returnAmount_CellEditor = new KDTDefaultCellEditor(kdtEntrys_returnAmount_TextField);
+        this.kdtEntrys.getColumn("returnAmount").setEditor(kdtEntrys_returnAmount_CellEditor);
+        KDTextField kdtEntrys_remark_TextField = new KDTextField();
+        kdtEntrys_remark_TextField.setName("kdtEntrys_remark_TextField");
+        kdtEntrys_remark_TextField.setMaxLength(255);
+        KDTDefaultCellEditor kdtEntrys_remark_CellEditor = new KDTDefaultCellEditor(kdtEntrys_remark_TextField);
+        this.kdtEntrys.getColumn("remark").setEditor(kdtEntrys_remark_CellEditor);
         // btnAudit
         this.btnAudit.setAction((IItemAction)ActionProxyFactory.getProxy(actionAudit, new Class[] { IItemAction.class }, getServiceContext()));		
         this.btnAudit.setText(resHelper.getString("btnAudit.text"));		
@@ -437,9 +442,6 @@ public abstract class AbstractReturnBillEditUI extends com.kingdee.eas.framework
         this.add(contLastUpdateTime, new KDLayout.Constraints(300, 504, 270, 19, KDLayout.Constraints.ANCHOR_TOP | KDLayout.Constraints.ANCHOR_LEFT_SCALE | KDLayout.Constraints.ANCHOR_RIGHT_SCALE));
         contAuditor.setBounds(new Rectangle(590, 479, 270, 19));
         this.add(contAuditor, new KDLayout.Constraints(590, 479, 270, 19, KDLayout.Constraints.ANCHOR_TOP | KDLayout.Constraints.ANCHOR_LEFT_SCALE | KDLayout.Constraints.ANCHOR_RIGHT));
-        kdtEntrys.setBounds(new Rectangle(12, 60, 850, 390));
-        kdtEntrys_detailPanel = (com.kingdee.eas.framework.client.multiDetail.DetailPanel)com.kingdee.eas.framework.client.multiDetail.HMDUtils.buildDetail(this,dataBinder,kdtEntrys,new com.kingdee.eas.cp.bc.ReturnBillEntryInfo(),null,false);
-        this.add(kdtEntrys_detailPanel, new KDLayout.Constraints(12, 60, 850, 390, KDLayout.Constraints.ANCHOR_TOP | KDLayout.Constraints.ANCHOR_LEFT | KDLayout.Constraints.ANCHOR_RIGHT_SCALE));
         contloanBillNumber.setBounds(new Rectangle(10, 10, 270, 19));
         this.add(contloanBillNumber, new KDLayout.Constraints(10, 10, 270, 19, KDLayout.Constraints.ANCHOR_TOP | KDLayout.Constraints.ANCHOR_LEFT | KDLayout.Constraints.ANCHOR_RIGHT_SCALE));
         contloanAmount.setBounds(new Rectangle(300, 10, 270, 19));
@@ -458,6 +460,8 @@ public abstract class AbstractReturnBillEditUI extends com.kingdee.eas.framework
         this.add(contremark, new KDLayout.Constraints(10, 455, 850, 19, KDLayout.Constraints.ANCHOR_TOP | KDLayout.Constraints.ANCHOR_LEFT | KDLayout.Constraints.ANCHOR_RIGHT_SCALE));
         returnBillType.setBounds(new Rectangle(128, 26, 170, 19));
         this.add(returnBillType, new KDLayout.Constraints(128, 26, 170, 19, 0));
+        kDContainer1.setBounds(new Rectangle(10, 59, 850, 390));
+        this.add(kDContainer1, new KDLayout.Constraints(10, 59, 850, 390, KDLayout.Constraints.ANCHOR_TOP | KDLayout.Constraints.ANCHOR_LEFT | KDLayout.Constraints.ANCHOR_RIGHT_SCALE));
         //contCreator
         contCreator.setBoundEditor(prmtCreator);
         //contCreateTime
@@ -484,6 +488,10 @@ public abstract class AbstractReturnBillEditUI extends com.kingdee.eas.framework
         contauditDate.setBoundEditor(pkauditDate);
         //contremark
         contremark.setBoundEditor(txtremark);
+        //kDContainer1
+        kDContainer1.getContentPane().setLayout(new KDLayout());
+        kDContainer1.getContentPane().putClientProperty("OriginalBounds", new Rectangle(10, 59, 850, 390));        kdtEntrys.setBounds(new Rectangle(0, 0, 850, 366));
+        kDContainer1.getContentPane().add(kdtEntrys, new KDLayout.Constraints(0, 0, 850, 366, 0));
 
     }
 
@@ -657,11 +665,6 @@ public abstract class AbstractReturnBillEditUI extends com.kingdee.eas.framework
 
 	//Regiester control's property binding.
 	private void registerBindings(){
-		dataBinder.registerBinding("entrys.id", com.kingdee.bos.util.BOSUuid.class, this.kdtEntrys, "id.text");
-		dataBinder.registerBinding("entrys", com.kingdee.eas.cp.bc.ReturnBillEntryInfo.class, this.kdtEntrys, "userObject");
-		dataBinder.registerBinding("entrys.returnDate", java.util.Date.class, this.kdtEntrys, "returnDate.text");
-		dataBinder.registerBinding("entrys.returnAmount", java.math.BigDecimal.class, this.kdtEntrys, "returnAmount.text");
-		dataBinder.registerBinding("entrys.remark", String.class, this.kdtEntrys, "remark.text");
 		dataBinder.registerBinding("returnBillType", com.kingdee.eas.cp.bc.ReturnBillTypeEnum.class, this.returnBillType, "selectedItem");
 		dataBinder.registerBinding("creator", com.kingdee.eas.base.permission.UserInfo.class, this.prmtCreator, "data");
 		dataBinder.registerBinding("createTime", java.sql.Timestamp.class, this.kDDateCreateTime, "value");
@@ -675,7 +678,12 @@ public abstract class AbstractReturnBillEditUI extends com.kingdee.eas.framework
 		dataBinder.registerBinding("returnAmount", java.math.BigDecimal.class, this.txtreturnAmount, "value");
 		dataBinder.registerBinding("billState", com.kingdee.eas.cp.bc.ReturnStateEnum.class, this.billState, "selectedItem");
 		dataBinder.registerBinding("auditDate", java.util.Date.class, this.pkauditDate, "value");
-		dataBinder.registerBinding("remark", String.class, this.txtremark, "text");		
+		dataBinder.registerBinding("remark", String.class, this.txtremark, "text");
+		dataBinder.registerBinding("entrys", com.kingdee.eas.cp.bc.ReturnBillEntryInfo.class, this.kdtEntrys, "userObject");
+		dataBinder.registerBinding("entrys.id", com.kingdee.bos.util.BOSUuid.class, this.kdtEntrys, "id.text");
+		dataBinder.registerBinding("entrys.returnDate", java.util.Date.class, this.kdtEntrys, "returnDate.text");
+		dataBinder.registerBinding("entrys.returnAmount", java.math.BigDecimal.class, this.kdtEntrys, "returnAmount.text");
+		dataBinder.registerBinding("entrys.remark", String.class, this.kdtEntrys, "remark.text");		
 	}
 	//Regiester UI State
 	private void registerUIState(){		
@@ -750,11 +758,6 @@ public abstract class AbstractReturnBillEditUI extends com.kingdee.eas.framework
 	 */
 	protected void registerValidator() {
     	getValidateHelper().setCustomValidator( getValidator() );
-		getValidateHelper().registerBindProperty("entrys.id", ValidateHelper.ON_SAVE);    
-		getValidateHelper().registerBindProperty("entrys", ValidateHelper.ON_SAVE);    
-		getValidateHelper().registerBindProperty("entrys.returnDate", ValidateHelper.ON_SAVE);    
-		getValidateHelper().registerBindProperty("entrys.returnAmount", ValidateHelper.ON_SAVE);    
-		getValidateHelper().registerBindProperty("entrys.remark", ValidateHelper.ON_SAVE);    
 		getValidateHelper().registerBindProperty("returnBillType", ValidateHelper.ON_SAVE);    
 		getValidateHelper().registerBindProperty("creator", ValidateHelper.ON_SAVE);    
 		getValidateHelper().registerBindProperty("createTime", ValidateHelper.ON_SAVE);    
@@ -768,7 +771,12 @@ public abstract class AbstractReturnBillEditUI extends com.kingdee.eas.framework
 		getValidateHelper().registerBindProperty("returnAmount", ValidateHelper.ON_SAVE);    
 		getValidateHelper().registerBindProperty("billState", ValidateHelper.ON_SAVE);    
 		getValidateHelper().registerBindProperty("auditDate", ValidateHelper.ON_SAVE);    
-		getValidateHelper().registerBindProperty("remark", ValidateHelper.ON_SAVE);    		
+		getValidateHelper().registerBindProperty("remark", ValidateHelper.ON_SAVE);    
+		getValidateHelper().registerBindProperty("entrys", ValidateHelper.ON_SAVE);    
+		getValidateHelper().registerBindProperty("entrys.id", ValidateHelper.ON_SAVE);    
+		getValidateHelper().registerBindProperty("entrys.returnDate", ValidateHelper.ON_SAVE);    
+		getValidateHelper().registerBindProperty("entrys.returnAmount", ValidateHelper.ON_SAVE);    
+		getValidateHelper().registerBindProperty("entrys.remark", ValidateHelper.ON_SAVE);    		
 	}
 
 
@@ -796,16 +804,6 @@ public abstract class AbstractReturnBillEditUI extends com.kingdee.eas.framework
 		if(StringUtils.isEmpty(selectorAll)){
 			selectorAll = "true";
 		}
-    	sic.add(new SelectorItemInfo("entrys.id"));
-		if(selectorAll.equalsIgnoreCase("true"))
-		{
-			sic.add(new SelectorItemInfo("entrys.*"));
-		}
-		else{
-		}
-    	sic.add(new SelectorItemInfo("entrys.returnDate"));
-    	sic.add(new SelectorItemInfo("entrys.returnAmount"));
-    	sic.add(new SelectorItemInfo("entrys.remark"));
         sic.add(new SelectorItemInfo("returnBillType"));
 		if(selectorAll.equalsIgnoreCase("true"))
 		{
@@ -852,6 +850,16 @@ public abstract class AbstractReturnBillEditUI extends com.kingdee.eas.framework
         sic.add(new SelectorItemInfo("billState"));
         sic.add(new SelectorItemInfo("auditDate"));
         sic.add(new SelectorItemInfo("remark"));
+		if(selectorAll.equalsIgnoreCase("true"))
+		{
+			sic.add(new SelectorItemInfo("entrys.*"));
+		}
+		else{
+		}
+    	sic.add(new SelectorItemInfo("entrys.id"));
+    	sic.add(new SelectorItemInfo("entrys.returnDate"));
+    	sic.add(new SelectorItemInfo("entrys.returnAmount"));
+    	sic.add(new SelectorItemInfo("entrys.remark"));
         return sic;
     }        
     	

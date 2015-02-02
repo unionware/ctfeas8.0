@@ -44,7 +44,9 @@ public class BizExpenseAccountListUICTEx extends BizExpenseAccountListUI {
 			this.tblMain.removeColumn(this.tblMain.getColumnIndex("entries.tax"));
 			this.tblMain.removeColumn(this.tblMain.getColumnIndex("entries.noTaxAmtLocal"));
 			this.tblMain.removeColumn(this.tblMain.getColumnIndex("entries.taxLocal"));
+			this.tblMain.removeColumn(this.tblMain.getColumnIndex("person.name"));
 		}
+		this.tblMain.getColumn("contract.name").getStyleAttributes().setHided(true);
 	}
 
 	

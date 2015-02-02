@@ -23,6 +23,7 @@ public class TravelExpenseAccountListUICTEx extends TravelExpenseAccountListUI {
 		super.onLoad();
 		if (!this.isShowEntry) {
 			this.tblMain.removeColumn(this.tblMain.getColumnIndex("entries.project"));
+			this.tblMain.removeColumn(this.tblMain.getColumnIndex("person.name"));
 			this.tblMain.removeColumn(this.tblMain.getColumnIndex("entries.noTaxAmt"));
 			this.tblMain.removeColumn(this.tblMain.getColumnIndex("entries.taxRate"));
 			this.tblMain.removeColumn(this.tblMain.getColumnIndex("entries.tax"));
@@ -43,7 +44,4 @@ public class TravelExpenseAccountListUICTEx extends TravelExpenseAccountListUI {
 	     
 		super.actionAntiAudit_actionPerformed(e);
 	}
-	
-	
-
 }

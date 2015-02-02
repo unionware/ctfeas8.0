@@ -24,14 +24,14 @@ public abstract class AbstractEvectionLoanBillListUIHandler extends com.kingdee.
 	}
 	protected void _handleActionViewRrcdsOfLendAndRepay(RequestContext request,ResponseContext response, Context context) throws Exception {
 	}
-	public void handleActionReturn(RequestContext request,ResponseContext response, Context context) throws Exception {
-		_handleActionReturn(request,response,context);
-	}
-	protected void _handleActionReturn(RequestContext request,ResponseContext response, Context context) throws Exception {
-	}
 	public void handleActionComfirmReturn(RequestContext request,ResponseContext response, Context context) throws Exception {
 		_handleActionComfirmReturn(request,response,context);
 	}
 	protected void _handleActionComfirmReturn(RequestContext request,ResponseContext response, Context context) throws Exception {
+	}
+	public void handleActionReturn(RequestContext request,ResponseContext response, Context context) throws Exception {
+		_handleActionReturn(request,response,context);
+	}
+	protected void _handleActionReturn(RequestContext request,ResponseContext response, Context context) throws Exception {
 	}
 }

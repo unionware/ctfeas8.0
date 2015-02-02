@@ -7,10 +7,11 @@ import com.kingdee.bos.util.*;
 import com.kingdee.bos.Context;
 
 import java.lang.String;
-import com.kingdee.eas.common.EASBizException;
 import com.kingdee.bos.metadata.entity.EntityViewInfo;
+import com.kingdee.eas.common.EASBizException;
 import com.kingdee.bos.dao.IObjectPK;
 import com.kingdee.eas.framework.app.DataBaseController;
+import java.math.BigDecimal;
 import com.kingdee.bos.metadata.entity.SelectorItemCollection;
 import com.kingdee.eas.framework.CoreBaseCollection;
 import com.kingdee.bos.util.*;
@@ -33,4 +34,6 @@ public interface ExcessSetController extends DataBaseController
     public ExcessSetCollection getExcessSetCollection(Context ctx) throws BOSException, RemoteException;
     public ExcessSetCollection getExcessSetCollection(Context ctx, EntityViewInfo view) throws BOSException, RemoteException;
     public ExcessSetCollection getExcessSetCollection(Context ctx, String oql) throws BOSException, RemoteException;
+    public BigDecimal getAboveQuota(Context ctx, String projectid, String expenseTypeid, String costcenterid, ExcessSetCollection excessSetCol) throws BOSException, EASBizException, RemoteException;
+    public ExcessSetCollection getExcessSetInfos(Context ctx, long year) throws BOSException, EASBizException, RemoteException;
 }

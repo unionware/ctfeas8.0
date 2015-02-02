@@ -16,10 +16,12 @@ public class ReturnStateEnum extends StringEnum
     public static final String TEMPSAVE_VALUE = "0";//alias=暂存
     public static final String SUBMITEDPAID_VALUE = "1";//alias=已提交还款
     public static final String COMFIRMPAID_VALUE = "2";//alias=已确认还款
+    public static final String NULL_VALUE = "3";//alias=
 
     public static final ReturnStateEnum TEMPSAVE = new ReturnStateEnum("TEMPSAVE", TEMPSAVE_VALUE);
     public static final ReturnStateEnum SUBMITEDPAID = new ReturnStateEnum("SUBMITEDPAID", SUBMITEDPAID_VALUE);
     public static final ReturnStateEnum COMFIRMPAID = new ReturnStateEnum("COMFIRMPAID", COMFIRMPAID_VALUE);
+    public static final ReturnStateEnum NULL = new ReturnStateEnum("NULL", NULL_VALUE);
 
     /**
      * construct function

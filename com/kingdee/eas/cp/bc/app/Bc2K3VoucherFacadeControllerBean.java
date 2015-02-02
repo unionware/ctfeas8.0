@@ -626,8 +626,8 @@ public class Bc2K3VoucherFacadeControllerBean extends AbstractBc2K3VoucherFacade
     	view.getSelector().add(new SelectorItemInfo("accountId.number"));
     	ExpenseTypeInfo expenseType = (ExpenseTypeInfo)entry.getObjectValue("expenseType"); //费用类型
     	String expenseTypeID = expenseType.getId().toString(); //类型ID
-		String comId = info.getCompany().getId().toString();  //公司ID
-    	filter.getFilterItems().add(new FilterItemInfo("company.id",comId));
+		//String comId = info.getCompany().getId().toString();  //公司ID
+    	//filter.getFilterItems().add(new FilterItemInfo("company.id",comId));
     	filter.getFilterItems().add(new FilterItemInfo("expenseTypeId.id",expenseTypeID));
     	
     	ExpenseTypeSubjectMappingCollection coll = 
@@ -726,6 +726,7 @@ public class Bc2K3VoucherFacadeControllerBean extends AbstractBc2K3VoucherFacade
 			//suppNum = info.getPayerName() ;// getSupplierNum(ctx, info.getPayerAccount(), info.getPayerName()); // info.getPayerAccount()==null?"":info.getPayerAccount();
 			//suppNum = suppNum==null?"":"SUP."+suppNum;
 			suppNum= getPayerNum(ctx, info, reenum);
+			suppNum = suppNum==null?"":"SUP."+suppNum;
     	}
     	
     	headRow.put("FTMQNo",info.getNumber());
@@ -821,7 +822,7 @@ public class Bc2K3VoucherFacadeControllerBean extends AbstractBc2K3VoucherFacade
      * @throws BOSException 
      */
     private int getRowType(Context ctx,BizCollBillBaseInfo info) throws BOSException{
-    	BizAccountBillLoanCheckEntryCollection coll = (BizAccountBillLoanCheckEntryCollection)info.get("LoanCheckEntries");
+    	AbstractObjectCollection coll = (AbstractObjectCollection)info.get("LoanCheckEntries");
     	//帐扣的固定 
     	if(K3WebAccConfigInfos.getAcountPayModeName(ctx).equals(((SettlementTypeInfo )info.get("payMode")).getName())){
     		return -1;

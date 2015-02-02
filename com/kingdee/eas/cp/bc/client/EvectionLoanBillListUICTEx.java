@@ -70,7 +70,6 @@ public class EvectionLoanBillListUICTEx extends EvectionLoanBillListUI {
 	@Override
 	public void onLoad() throws Exception {
 		super.onLoad();
-		actionReturn.setEnabled(true);
 		
 		this.tblMain.addKDTSelectListener(new KDTSelectListener() {
 	  	      public void tableSelectChanged(KDTSelectEvent e) {
@@ -81,6 +80,14 @@ public class EvectionLoanBillListUICTEx extends EvectionLoanBillListUI {
 		  	        }
 	  	      }
 		});
+		
+		if (!this.isShowEntry) {
+			 this.tblMain.removeColumn(this.tblMain.getColumnIndex("project.name"));
+			 this.tblMain.removeColumn(this.tblMain.getColumnIndex("costcostedDept1.name"));
+			 this.tblMain.removeColumn(this.tblMain.getColumnIndex("person.name"));
+			
+		}
+		
 	}
 	
 	protected final void _tblMain_tableSelectChanged(KDTSelectEvent e) throws Exception {
@@ -88,15 +95,12 @@ public class EvectionLoanBillListUICTEx extends EvectionLoanBillListUI {
         if (activeRowIndex != -1) {
         	if(this.tblMain.getRow(activeRowIndex).getCell("state").getValue()!= null){
         		String state = this.tblMain.getCell(activeRowIndex, "state").getValue().toString();
-        		if(!StringUtils.isEmpty(state) && StateEnum.CHECKED.getAlias().equals(state)){
+        		if(StateEnum.CHECKED.getAlias().equals(state)){//审核已通过才能还款
         			if (this.tblMain.getRow(activeRowIndex).getCell("returnState").getValue() != null) {
         	            String status = this.tblMain.getCell(activeRowIndex, "returnState").getValue().toString();
-        	            if(!StringUtils.isEmpty(status) && ReturnStateEnum.SUBMITEDPAID.getAlias().equals(status)){
+        	            if(!ReturnStateEnum.TEMPSAVE.getAlias().equals(status)){//已提交和已审核才放出确认还款
         	            	this.actionReturn.setEnabled(true);
         	            	this.actionComfirmReturn.setEnabled(true);
-        	            }else if(!StringUtils.isEmpty(status) && ReturnStateEnum.COMFIRMPAID.getAlias().equals(status)){
-        	            	this.actionComfirmReturn.setEnabled(false);
-        	            	this.actionReturn.setEnabled(false);
         	            }else{
         	            	this.actionReturn.setEnabled(true);
         	            	this.actionComfirmReturn.setEnabled(false);
@@ -105,6 +109,9 @@ public class EvectionLoanBillListUICTEx extends EvectionLoanBillListUI {
         	        	  this.actionReturn.setEnabled(true);
         	        	  this.actionComfirmReturn.setEnabled(false);
         	        }
+        		}else if(StateEnum.CLOSED.getAlias().equals(state)){//已关闭状态可以查看
+        			this.actionReturn.setEnabled(true);
+        			this.actionComfirmReturn.setEnabled(true);
         		}else{
         			this.actionReturn.setEnabled(false);
         			this.actionComfirmReturn.setEnabled(false);
@@ -113,13 +120,16 @@ public class EvectionLoanBillListUICTEx extends EvectionLoanBillListUI {
         }
      }
 	
+	/**
+	 * 还款功能
+	 * tgw
+	 */
 	@Override
     public void actionReturn_actionPerformed(ActionEvent e) throws Exception {
 		int activeRowIndex = this.tblMain.getSelectManager().getActiveRowIndex();
 	    if (activeRowIndex < 0) {
 	      return;
 	    }
-        
 	    
 	    String billID = this.tblMain.getCell(activeRowIndex, "id").getValue().toString();
         String LoanNumber = this.tblMain.getCell(activeRowIndex, "number").getValue().toString();
@@ -127,38 +137,21 @@ public class EvectionLoanBillListUICTEx extends EvectionLoanBillListUI {
         EvectionLoanBillInfo billInfo = getBillInfoById(billID);
         ReturnBillInfo rInfo = getBillInfoByNumber(LoanNumber);
         
-        UserInfo appllierUser = null;
-        if(billInfo.getApplier()!=null){
-        	appllierUser = getUserInfoByPerson(billInfo.getApplier());
-        }
-        UserInfo userInfo =  SysContext.getSysContext().getCurrentUserInfo();
-        if((appllierUser!=null  && userInfo.getId().toString().equals(appllierUser.getId().toString()))
-        		|| 	(rInfo!=null && rInfo.getLoanor()!=null 
-        				&& userInfo.getId().toString().equals(rInfo.getCreator().getId().toString()))
-           
-        ){
         	UIContext uiContext = new UIContext(this);
     		uiContext.put("billInfo", billInfo);
     		uiContext.put("return", ReturnStateEnum.TEMPSAVE_VALUE);
     		
     		IUIWindow uiWindow = null;
     		if(rInfo==null){
-//    			uiContext.put("return", ReturnStateEnum.TEMPSAVE_VALUE);
     			uiWindow = UIFactory.createUIFactory(UIFactoryName.MODEL).
     			create(ReturnBillEditUI.class.getName(), uiContext, null,OprtState.ADDNEW);
     		}else{
-    			uiContext.put("ID", rInfo.getId().toString());
-//    			uiContext.put("return", ReturnStateEnum.SUBMITEDPAID_VALUE);
-    			uiWindow = UIFactory.createUIFactory(UIFactoryName.MODEL).
-    			create(ReturnBillEditUI.class.getName(), uiContext, null,OprtState.VIEW);
+	    			uiContext.put("ID", rInfo.getId().toString());
+	    			uiWindow = UIFactory.createUIFactory(UIFactoryName.MODEL).
+	    			create(ReturnBillEditUI.class.getName(), uiContext, null,OprtState.VIEW);
     		}
     		uiWindow.show();
     		this.refresh(e);
-    		
-        }else{
-        	MsgBox.showInfo(this, "只有借款人和还款单制单人支持还款！");
-        	abort();
-        }
     }
 	
 	private UserInfo getUserInfoByPerson(PersonInfo personInfo) throws BOSException {
@@ -187,6 +180,10 @@ public class EvectionLoanBillListUICTEx extends EvectionLoanBillListUI {
 		return info;
 	}
 
+    /**
+	 * 确认还款功能
+	 * tgw
+	 */
 	@Override
     public void actionComfirmReturn_actionPerformed(ActionEvent e)
     		throws Exception {
@@ -205,7 +202,6 @@ public class EvectionLoanBillListUICTEx extends EvectionLoanBillListUI {
 	    	MsgBox.showInfo("数据有误，找不到对应的还款单！");
 	    	abort();
 	    }
-	    
 	    UIContext uiContext = new UIContext(this);
 	    
 		uiContext.put("billInfo", billInfo);
@@ -229,6 +225,9 @@ public class EvectionLoanBillListUICTEx extends EvectionLoanBillListUI {
 				int nStatus = NOTHING;
 				for (int i = 0; i < rows.length; i++) {
 					row = tblMain.getRow(rows[i]);
+					if(row.getCell("state").getValue()!=null && ReturnStateEnum.COMFIRMPAID.getAlias().equals(row.getCell("returnState").getValue().toString()) ){
+						abort();
+					}
 					if (row.getCell("state") != null) {
 						enumValue = (BizEnumValueInfo) row.getCell("state").getValue();
 					}
@@ -252,10 +251,6 @@ public class EvectionLoanBillListUICTEx extends EvectionLoanBillListUI {
 							new Object[] { errorRowIndexString });
 				}
 
-//				int result = MsgBox.showConfirm2(this, EASResource.getString(RESIMPORT,
-//				"IS_DO_CLOSE"));
-//				if (result == KDOptionPane.YES_OPTION) {	
-					
 					List idList = this.getSelectIdList();
 					IEvectionLoanBill iEvection = null;
 					EvectionLoanBillInfo evectionInfo = null;
@@ -341,9 +336,6 @@ public class EvectionLoanBillListUICTEx extends EvectionLoanBillListUI {
 					if (count - successCount > 0) {
 						msg.append(errorMessage);
 					}
-
-//					MsgBox.showInfo(this, msg.toString());
-//					this.showMessage();
 					this.refresh(e);
 			}
 	    }
@@ -375,6 +367,21 @@ public class EvectionLoanBillListUICTEx extends EvectionLoanBillListUI {
 	     BOSUuid id = BOSUuid.read(getSelectedKeyValue());
 	     iBiz.checkBillHasCreate(id);
 		super.actionAntiAudit_actionPerformed(arg0);
+	}
+	
+	
+	@Override
+	public SelectorItemCollection getBOTPSelectors() {
+		SelectorItemCollection sic =   super.getBOTPSelectors();
+        sic.add(new SelectorItemInfo("entries.person.id"));
+		sic.add(new SelectorItemInfo("entries.person.name"));
+		sic.add(new SelectorItemInfo("entries.person.number"));
+
+		sic.add(new SelectorItemInfo("entries.project.id"));
+		sic.add(new SelectorItemInfo("entries.project.name"));
+		sic.add(new SelectorItemInfo("entries.project.number"));
+		
+		return sic;
 	}
 	
 	

@@ -2,19 +2,26 @@ package com.kingdee.eas.cp.bc.client;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
+import java.util.HashSet;
 
 import bsh.This;
 
 import com.kingdee.bos.BOSException;
 import com.kingdee.bos.ctrl.extendcontrols.KDBizPromptBox;
 import com.kingdee.bos.ctrl.kdf.table.KDTDefaultCellEditor;
+import com.kingdee.bos.ctrl.kdf.table.event.KDTEditAdapter;
+import com.kingdee.bos.ctrl.kdf.table.event.KDTEditEvent;
+import com.kingdee.bos.ctrl.kdf.util.render.ObjectValueRender;
 import com.kingdee.bos.ctrl.swing.event.DataChangeEvent;
+import com.kingdee.bos.ctrl.swing.event.SelectorEvent;
+import com.kingdee.bos.ctrl.swing.event.SelectorListener;
 import com.kingdee.bos.dao.ormapping.ObjectUuidPK;
 import com.kingdee.bos.metadata.entity.EntityViewInfo;
 import com.kingdee.bos.metadata.entity.FilterInfo;
 import com.kingdee.bos.metadata.entity.FilterItemInfo;
 import com.kingdee.bos.metadata.entity.SelectorItemCollection;
 import com.kingdee.bos.metadata.entity.SelectorItemInfo;
+import com.kingdee.bos.util.BOSUuid;
 import com.kingdee.eas.basedata.assistant.BankInfo;
 import com.kingdee.eas.basedata.assistant.ProjectInfo;
 import com.kingdee.eas.basedata.assistant.SettlementTypeFactory;
@@ -30,6 +37,7 @@ import com.kingdee.eas.basedata.master.cssp.SupplierFactory;
 import com.kingdee.eas.basedata.master.cssp.SupplierInfo;
 import com.kingdee.eas.basedata.org.CompanyOrgUnitInfo;
 import com.kingdee.eas.basedata.org.CostCenterOrgUnitInfo;
+import com.kingdee.eas.basedata.org.FullOrgUnitInfo;
 import com.kingdee.eas.basedata.person.BankInfoCollection;
 import com.kingdee.eas.basedata.person.BankInfoFactory;
 import com.kingdee.eas.basedata.person.BankInfoInfo;
@@ -39,7 +47,9 @@ import com.kingdee.eas.basedata.person.PersonInfo;
 import com.kingdee.eas.common.EASBizException;
 import com.kingdee.eas.cp.bc.ExpenseTypeInfo;
 import com.kingdee.eas.cp.bc.MakeControl;
+import com.kingdee.eas.cp.bc.OperationTypeInfo;
 import com.kingdee.eas.cp.bc.ReceiveObjectEnum;
+import com.kingdee.eas.cp.bc.ReturnStateEnum;
 import com.kingdee.eas.fm.be.BEBankFactory;
 import com.kingdee.eas.fm.be.BEBankInfo;
 import com.kingdee.eas.mm.basedata.app.BomExpandBackward;
@@ -57,6 +67,8 @@ public class EvectionLoanBillEditUICTEx extends EvectionLoanBillEditUI {
 	boolean isFirstLoad = true;
 	
 	KDBizPromptBox prmtPersonBox = null;
+	
+	private KDBizPromptBox bizPromptExpenseTypeEntry = new KDBizPromptBox();  //父类中的不可见
 	
 	public EvectionLoanBillEditUICTEx() throws Exception {
 		super();
@@ -82,25 +94,162 @@ public class EvectionLoanBillEditUICTEx extends EvectionLoanBillEditUI {
 		this.kdtEntries.getColumn("costDept").setEditor(new KDTDefaultCellEditor(prmtCostedDept));
 		
 		prmtPersonBox = new KDBizPromptBox();
+		prmtPersonBox.setRequired(true);
 		prmtPersonBox.setQueryInfo("com.kingdee.eas.basedata.person.app.PersonQuery");
 		prmtPersonBox.setEditFormat("$number$");
-		prmtPersonBox.setDisplayFormat("$name$");
+		prmtPersonBox.setDisplayFormat("$name$-$number$");
 		prmtPersonBox.setCommitFormat("$number$");
+		
+		this.kDLabelContainer34.setVisible(false);
+		
+		this.kDLabelContainer35.setVisible(false);
+		this.payCompany.setVisible(false);
+		this.payCompany.setEnabled(false);
+		
+		
+		ObjectValueRender kdtEntrys_person_OVR = new ObjectValueRender();
+		kdtEntrys_person_OVR.setFormat(new com.kingdee.bos.ctrl.extendcontrols.BizDataFormat("$name$-$number$"));
+		
 		this.kdtEntries.getColumn("person").setEditor(new KDTDefaultCellEditor(prmtPersonBox));
+		this.kdtEntries.getColumn("person").setRenderer(kdtEntrys_person_OVR);
+		this.kdtEntries.getColumn("person").setRequired(true);
+		
+		bizPromptExpenseType.addSelectorListener(new SelectorListener(){
+			public void willShow(SelectorEvent arg0) {
+				 String ids = null;
+				 
+				 if ((bizPromptCostedDept.getData() instanceof FullOrgUnitInfo)) {
+					 FullOrgUnitInfo org =  (FullOrgUnitInfo)bizPromptCostedDept.getData();
+					 if(org!=null){
+						 ids = ((FullOrgUnitInfo)bizPromptCostedDept.getData()).getId().toString();
+					 }
+				}else  if ((bizPromptCostedDept.getData() instanceof CostCenterOrgUnitInfo)) {
+					CostCenterOrgUnitInfo org =  (CostCenterOrgUnitInfo)bizPromptCostedDept.getData();
+					 if(org!=null){
+						 ids = ((CostCenterOrgUnitInfo)bizPromptCostedDept.getData()).getId().toString();
+					 }
+				}
+				 
+				 if (("ADDNEW".equals(getOprtState())) || ("EDIT".equals(getOprtState()))){
+					 OperationTypePromptBox selector = (OperationTypePromptBox)bizPromptExpenseType.getSelector();
+					 if(selector==null){
+						 selector = (OperationTypePromptBox)bizPromptExpenseType.getSelector();
+					 }
+					 if(ids==null){
+						 ids = BOSUuid.create("111111").toString();
+					 }
+					 selector.getUiContext().put("costCenterId", ids);
+					
+				 }
+			}});
+		
 	}
 
 	
-		public void loadFields() {
-			super.loadFields();
-			try {
-				initBillLoad();
-			} catch (BOSException e) {
-				e.printStackTrace();
-				this.handUIException(e);
+	@Override
+	protected void initUIData() {
+		super.initUIData();
+		
+		 //父类中的不可见
+	     MakeControl.makeAccountF7_mul(bizPromptExpenseTypeEntry, this);
+	     bizPromptExpenseTypeEntry.setEditable(true);
+	     ObjectValueRender avr = new ObjectValueRender();
+	     avr.setFormat(new com.kingdee.bos.ctrl.extendcontrols.BizDataFormat("$typeName$-$number$"));
+	     kdtEntries.getColumn("expenseType").setRenderer(avr);
+	     kdtEntries.getColumn("expenseType").setEditor(new KDTDefaultCellEditor(bizPromptExpenseTypeEntry));
+		
+	     this.kdtEntries.addKDTEditListener(new KDTEditAdapter()
+	     {
+	       public void editStarting(KDTEditEvent e)
+	       {
+	         if (e.getColIndex() == kdtEntries.getColumnIndex("expenseType"))
+	         {
+	           ExpenseTypePromptBox selector = (ExpenseTypePromptBox)bizPromptExpenseTypeEntry.getSelector();
+	           
+	           if (bizPromptExpenseType.getValue() != null) {
+	             selector.getUiContext().put("operationTypeId", ((OperationTypeInfo)bizPromptExpenseType.getValue()).getId().toString());
+	           } else {
+	             selector.getUiContext().put("operationTypeId", null);
+	           }
+	           
+	           if (bizPromptCompany.getData() != null) {
+	             String ln = ((CompanyOrgUnitInfo)bizPromptCompany.getData()).getLongNumber();
+	             String[] lnSecs = ln.split("!");
+	             int size = lnSecs.length;
+	             HashSet lnUps = new HashSet();
+	             for (int i = 0; i < size; i++) {
+	               lnUps.add(lnSecs[i]);
+	             }
+	             selector.getUiContext().put("companyId", ((CompanyOrgUnitInfo)bizPromptCompany.getData()).getId().toString());
+	             selector.getUiContext().put("companyLongNumber", ((CompanyOrgUnitInfo)bizPromptCompany.getData()).getLongNumber());
+	           } else {
+	             selector.getUiContext().put("companyId", null);
+	           }
+	           String costDeptid= null;
+	           if(kdtEntries.getCell(e.getRowIndex(),"costDept").getValue()!=null){
+					costDeptid =  ((CostCenterOrgUnitInfo)kdtEntries.getCell(e.getRowIndex(), kdtEntries.getColumnIndex("costDept")).getValue()).getId().toString();
+				}else{
+					costDeptid = BOSUuid.create("111111").toString();
+				}
+	             selector.getUiContext().put("costCenterId", costDeptid);
+	         } 
+	       }
+	       
+	 
+	 
+	       public void editStopping(KDTEditEvent e) {}
+	       
+	 
+	       public void editStopped(KDTEditEvent e)
+	       {
+	    	   if (e.getColIndex() == kdtEntries.getColumnIndex("costDept"))
+	  		 {
+	  			 if(e.getOldValue()!=e.getValue()){
+	  				 kdtEntries.getCell(e.getRowIndex(), "expenseType").setValue(null);
+	  			 }
+	  		 }
+	       }
+	     });
+	}
+	
+	@Override
+	protected void bizPromptCostedDept_dataChanged(DataChangeEvent e)
+			throws Exception {
+		super.bizPromptCostedDept_dataChanged(e);
+		 if (e.getNewValue() != e.getOldValue()) {
+			 bizPromptExpenseType.setValue(null);
+		 }
+	}
+	
+	public void loadFields() {
+		super.loadFields();
+		
+		//复制并新增是还款金额和还款状态为空
+		if(getUIContext().get("isListCopyAndAddNew")!=null){
+			if((Boolean) getUIContext().get("isListCopyAndAddNew")){
+				this.returnState.setSelectedItem(null);
+				this.txtReturnAmt.setValue(null);
 			}
 		}
+		
+		try {
+			initBillLoad();
+		} catch (BOSException e) {
+			e.printStackTrace();
+			this.handUIException(e);
+		}
+	}
 
-
+	@Override
+	public void storeFields() {
+		if(getUIContext().get("isListCopyAndAddNew")!=null){
+			if((Boolean) getUIContext().get("isListCopyAndAddNew")){
+				this.editData.setReturnState(ReturnStateEnum.NULL);
+				this.editData.setReturnAmt(null);
+			}
+		}
+		super.storeFields();
+	}
 
 	protected void beforeStoreFields(ActionEvent arg0) throws Exception {
 		// TODO Auto-generated method stub
@@ -195,10 +344,16 @@ public class EvectionLoanBillEditUICTEx extends EvectionLoanBillEditUI {
 //		prmtVoucherNum.setEnabled(false);
 		contract.setEnabled(false);
 		if(this.editData.getSourceBillId()!= null ){
-			this.kdtEntries.getColumn("expenseType").getStyleAttributes().setLocked(true);
+			//this.kdtEntries.getColumn("expenseType").getStyleAttributes().setLocked(true);
 			this.kdtEntries.getColumn("project").getStyleAttributes().setLocked(true);
 			this.kdtEntries.getColumn("costDept").getStyleAttributes().setLocked(true);
 		}
+		
+		this.prmtVoucherNum.setQueryInfo("com.kingdee.eas.cp.bc.app.F7CompanyVoucherNumber");		
+        this.prmtVoucherNum.setDisplayFormat("$voucherNumber$");		
+        this.prmtVoucherNum.setEditFormat("$voucherNumber$");		
+        this.prmtVoucherNum.setCommitFormat("$voucherNumber$");
+        
 		if(this.getOprtState().equals(STATUS_CHECKING)){
 			prmtVoucherNum.setEnabled(true);
 			prmtVoucherNum.setEditable(true);
@@ -454,10 +609,10 @@ protected void prmtPayer_dataChanged(DataChangeEvent e) throws Exception {
 						|| stInfo.getName().equals("账扣")){
 					
 				}else{
-					
+					MsgBox.showInfo("银行账号不能为空");
+					SysUtil.abort();
 				}
-				MsgBox.showInfo("银行账号不能为空");
-				SysUtil.abort();
+			
 			}
 		}
 		if(iRows > 0 ){
@@ -483,12 +638,12 @@ protected void prmtPayer_dataChanged(DataChangeEvent e) throws Exception {
 					SysUtil.abort();
 				}
 				
-			/*	if(kdtEntries.getCell(i, kdtEntries.getColumnIndex("person")).getValue()!=null){
+				if(kdtEntries.getCell(i, kdtEntries.getColumnIndex("person")).getValue()!=null){
 					personId =  ((PersonInfo)kdtEntries.getCell(i, kdtEntries.getColumnIndex("person")).getValue()).getId().toString();
 				}else{
 					MsgBox.showInfo("费用清单职员不能为空");
 					SysUtil.abort();
-				}*/
+				}
 				
 
 //				compareId1 = projectid + "$" + exTypeid + "$" + costDeptid ;

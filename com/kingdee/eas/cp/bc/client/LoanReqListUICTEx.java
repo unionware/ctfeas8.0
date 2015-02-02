@@ -68,7 +68,6 @@ public class LoanReqListUICTEx extends LoanReqListUI {
 	@Override
 	public void onLoad() throws Exception {
 		super.onLoad();
-		btnReturn.setEnabled(true);
 
 		this.tblMain.addKDTSelectListener(new KDTSelectListener() {
 	  	      public void tableSelectChanged(KDTSelectEvent e) {
@@ -79,6 +78,14 @@ public class LoanReqListUICTEx extends LoanReqListUI {
 		  	        }
 	  	      }
 		});
+		
+		if (!this.isShowEntry) {
+			 this.tblMain.removeColumn(this.tblMain.getColumnIndex("project.name"));
+			 this.tblMain.removeColumn(this.tblMain.getColumnIndex("costedDept.name"));
+			 this.tblMain.removeColumn(this.tblMain.getColumnIndex("person.name"));
+			
+		}
+		this.tblMain.getColumn("operationType").getStyleAttributes().setHided(false);
 	}
 	
 	protected final void _tblMain_tableSelectChanged(KDTSelectEvent e) throws Exception {
@@ -86,15 +93,12 @@ public class LoanReqListUICTEx extends LoanReqListUI {
         if (activeRowIndex != -1) {
         	if(this.tblMain.getRow(activeRowIndex).getCell("state").getValue()!= null){
         		String state = this.tblMain.getCell(activeRowIndex, "state").getValue().toString();
-        		if(!StringUtils.isEmpty(state) && StateEnum.CHECKED.getAlias().equals(state)){
+        		if(StateEnum.CHECKED.getAlias().equals(state)){//审核已通过才能还款
         			if (this.tblMain.getRow(activeRowIndex).getCell("returnState").getValue() != null) {
         	            String status = this.tblMain.getCell(activeRowIndex, "returnState").getValue().toString();
-        	            if(!StringUtils.isEmpty(status) && ReturnStateEnum.SUBMITEDPAID.getAlias().equals(status)){
+        	            if(!ReturnStateEnum.TEMPSAVE.getAlias().equals(status)){//已提交和已审核才放出确认还款
         	            	this.actionReturn.setEnabled(true);
         	            	this.actionComfirmReturn.setEnabled(true);
-        	            }else if(!StringUtils.isEmpty(status) && ReturnStateEnum.COMFIRMPAID.getAlias().equals(status)){
-        	            	this.actionComfirmReturn.setEnabled(false);
-        	            	this.actionReturn.setEnabled(false);
         	            }else{
         	            	this.actionReturn.setEnabled(true);
         	            	this.actionComfirmReturn.setEnabled(false);
@@ -103,6 +107,9 @@ public class LoanReqListUICTEx extends LoanReqListUI {
         	        	  this.actionReturn.setEnabled(true);
         	        	  this.actionComfirmReturn.setEnabled(false);
         	        }
+        		}else if(StateEnum.CLOSED.getAlias().equals(state)){//已关闭状态可以查看
+        			this.actionReturn.setEnabled(true);
+        			this.actionComfirmReturn.setEnabled(true);
         		}else{
         			this.actionReturn.setEnabled(false);
         			this.actionComfirmReturn.setEnabled(false);
@@ -111,7 +118,10 @@ public class LoanReqListUICTEx extends LoanReqListUI {
         }
      }
 	
-	//还款
+	/**
+	 * 还款功能
+	 * tgw
+	 */
 	@Override
     public void actionReturn_actionPerformed(ActionEvent e) throws Exception {
 		int activeRowIndex = this.tblMain.getSelectManager().getActiveRowIndex();
@@ -125,38 +135,22 @@ public class LoanReqListUICTEx extends LoanReqListUI {
         DailyLoanBillInfo billInfo = getBillInfoById(billID);
         ReturnBillInfo rInfo = getBillInfoByNumber(LoanNumber);
         
-        //支持还款人
-        
-        UserInfo appllierUser = null;
-        if(billInfo.getApplier()!=null){
-        	appllierUser = getUserInfoByPerson(billInfo.getApplier());
-        }
-        UserInfo userInfo =  SysContext.getSysContext().getCurrentUserInfo();
-        if((appllierUser!=null  && userInfo.getId().toString().equals(appllierUser.getId().toString()))
-        		|| 	(rInfo!=null && rInfo.getLoanor()!=null 
-        				&& userInfo.getId().toString().equals(rInfo.getCreator().getId().toString()))
-           
-        ){
-        	UIContext uiContext = new UIContext(this);
-    		uiContext.put("billInfo", billInfo);
-    		uiContext.put("return", ReturnStateEnum.TEMPSAVE_VALUE);
-    		
-    		IUIWindow uiWindow = null;
-            if(rInfo==null){
-            	uiWindow = UIFactory.createUIFactory(UIFactoryName.MODEL).
-        		create(ReturnBillEditUI.class.getName(), uiContext, null,OprtState.ADDNEW);
-            }else{
-            	uiContext.put("ID", rInfo.getId().toString());
-            	uiWindow = UIFactory.createUIFactory(UIFactoryName.MODEL).
-        		create(ReturnBillEditUI.class.getName(), uiContext, null,OprtState.VIEW);
-            }
-    		uiWindow.show();
-    		this.refresh(e);
+    	UIContext uiContext = new UIContext(this);
+		uiContext.put("billInfo", billInfo);
+		uiContext.put("return", ReturnStateEnum.TEMPSAVE_VALUE);
+		
+		IUIWindow uiWindow = null;
+        if(rInfo==null){
+        	uiWindow = UIFactory.createUIFactory(UIFactoryName.MODEL).
+    		create(ReturnBillEditUI.class.getName(), uiContext, null,OprtState.ADDNEW);
         }else{
-        	MsgBox.showInfo(this, "只有借款人和还款单制单人支持还款！");
-        	abort();
-        	
+        	uiContext.put("ID", rInfo.getId().toString());
+        	uiWindow = UIFactory.createUIFactory(UIFactoryName.MODEL).
+    		create(ReturnBillEditUI.class.getName(), uiContext, null,OprtState.VIEW);
         }
+		uiWindow.show();
+		this.refresh(e);
+        
         	
     }
 	
@@ -188,7 +182,10 @@ public class LoanReqListUICTEx extends LoanReqListUI {
 		return info;
 	}
 
-    //确认还款
+    /**
+	 * 确认还款功能
+	 * tgw
+	 */
 	@Override
     public void actionComfirmReturn_actionPerformed(ActionEvent e)
     		throws Exception {
@@ -231,6 +228,9 @@ public class LoanReqListUICTEx extends LoanReqListUI {
 				int nStatus = NOTHING;
 				for (int i = 0; i < rows.length; i++) {
 					row = tblMain.getRow(rows[i]);
+					if(row.getCell("state").getValue()!=null && ReturnStateEnum.COMFIRMPAID.getAlias().equals(row.getCell("returnState").getValue().toString()) ){
+						abort();
+					}
 					if (row.getCell("state") != null) {
 						enumValue = (BizEnumValueInfo) row.getCell("state").getValue();
 					}
@@ -253,10 +253,6 @@ public class LoanReqListUICTEx extends LoanReqListUI {
 					throw new BizCollException(BizCollException.ERROR_OPERATION,
 							new Object[] { errorRowIndexString });
 				}
-
-//				int result = MsgBox.showConfirm2(this, EASResource.getString(RESIMPORT,
-//						"IS_DO_CLOSE"));
-//				if (result == KDOptionPane.YES_OPTION) {
 					
 					List idList = this.getSelectIdList();
 					IDailyLoanBill iDaily = null;
@@ -342,10 +338,7 @@ public class LoanReqListUICTEx extends LoanReqListUI {
 					if (count - successCount > 0) {
 						msg.append(errorMessage);
 					}
-//					MsgBox.showInfo(this, msg.toString());
-//					this.showMessage();
 					this.refresh(e);
-//				}
 			}
 	    }
         
@@ -438,5 +431,17 @@ public class LoanReqListUICTEx extends LoanReqListUI {
 		super.actionAntiAudit_actionPerformed(arg0);
 	}
 	
+	@Override
+	public SelectorItemCollection getBOTPSelectors() {
+		SelectorItemCollection sic =   super.getBOTPSelectors(); 
+        sic.add(new SelectorItemInfo("entries.person.id"));
+		sic.add(new SelectorItemInfo("entries.person.name"));
+		sic.add(new SelectorItemInfo("entries.person.number"));
+		sic.add(new SelectorItemInfo("entries.project.id"));
+		sic.add(new SelectorItemInfo("entries.project.name"));
+		sic.add(new SelectorItemInfo("entries.project.number"));
+
+		return sic;
+	}
 	
 }

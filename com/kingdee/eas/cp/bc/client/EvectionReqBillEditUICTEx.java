@@ -18,6 +18,7 @@ import com.kingdee.bos.ctrl.swing.event.DataChangeListener;
 import com.kingdee.bos.metadata.entity.EntityViewInfo;
 import com.kingdee.bos.metadata.entity.FilterInfo;
 import com.kingdee.bos.metadata.entity.FilterItemInfo;
+import com.kingdee.bos.util.BOSUuid;
 import com.kingdee.eas.basedata.assistant.ProjectInfo;
 import com.kingdee.eas.basedata.org.CompanyOrgUnitInfo;
 import com.kingdee.eas.basedata.org.CostCenterOrgUnitInfo;
@@ -79,11 +80,17 @@ public class EvectionReqBillEditUICTEx extends EvectionReqBillEditUI {
 		entryPerson.setQueryInfo("com.kingdee.eas.basedata.person.app.PersonQuery");
 		entryPerson.setVisible(true);
 		entryPerson.setEditable(true);
-		entryPerson.setRequired(false);
-		entryPerson.setDisplayFormat("$name$");
+		entryPerson.setRequired(true);
+		entryPerson.setDisplayFormat("$name$-$number$");
 		entryPerson.setEditFormat("$number$");
 		entryPerson.setCommitFormat("$number$");
+		ObjectValueRender kdtEntrys_person_OVR = new ObjectValueRender();
+		kdtEntrys_person_OVR.setFormat(new com.kingdee.bos.ctrl.extendcontrols.BizDataFormat("$name$-$number$"));
+
 		this.kdtEntries.getColumn(ENTRY_PERSON).setEditor(new KDTDefaultCellEditor(entryPerson));
+		this.kdtEntries.getColumn(ENTRY_PERSON).setRenderer(kdtEntrys_person_OVR);
+		this.kdtEntries.getColumn(ENTRY_PERSON).setRequired(true);
+		
 	}
 	
 	@Override
@@ -104,6 +111,9 @@ public class EvectionReqBillEditUICTEx extends EvectionReqBillEditUI {
 		
 		if(entryEditListener ==null){
 			entryEditListener = new KDTEditAdapter(){
+				public void editStarting(KDTEditEvent e) {
+					entryStarting(e);
+	    		}
 				public void editStopped(KDTEditEvent e) {
 					entryEditStopped(e);
 	    		}
@@ -126,7 +136,7 @@ public class EvectionReqBillEditUICTEx extends EvectionReqBillEditUI {
 				}
 			}});
 	}
-	
+
 	@Override
 	protected void verifyInput(ActionEvent e) throws Exception {
 		super.verifyInput(e);
@@ -146,6 +156,12 @@ public class EvectionReqBillEditUICTEx extends EvectionReqBillEditUI {
 					abort();
 				}
 				
+				if(kdtEntries.getCell(i, ENTRY_PERSON).getValue()==null){
+					MsgBox.showInfo(this,"职员不能为空！");
+					kdtEntries.getEditManager().editCellAt(i, kdtEntries.getColumnIndex(ENTRY_PERSON));
+					abort();
+				}
+				
 				/*if(kdtEntries.getCell(i, ENTRY_PROJECT).getValue()!=null){
 					projectid = ((ProjectInfo)kdtEntries.getCell(i, ENTRY_PROJECT).getValue()).getId().toString();
 				}
@@ -161,6 +177,38 @@ public class EvectionReqBillEditUICTEx extends EvectionReqBillEditUI {
 			}
 		}
 		
+	}
+	
+	protected void entryStarting(KDTEditEvent e) {
+		if (e.getColIndex() == this.kdtEntries.getColumnIndex(ENTRY_EXPENSETYPE)) {
+	         ExpenseTypePromptBox selector = (ExpenseTypePromptBox)this.bizPromptExpenseTypeEntry.getSelector();
+	       /*  if (bizPromptExpenseType.getValue() != null) {
+	             selector.getUiContext().put("operationTypeId", ((OperationTypeInfo)bizPromptExpenseType.getValue()).getId().toString());
+	           } else {*/
+	             selector.getUiContext().put("operationTypeId", null);
+	        //   }
+	           
+	           if (bizPromptCompany.getData() != null) {
+	             String ln = ((CompanyOrgUnitInfo)bizPromptCompany.getData()).getLongNumber();
+	             String[] lnSecs = ln.split("!");
+	             int size = lnSecs.length;
+	             HashSet lnUps = new HashSet();
+	             for (int i = 0; i < size; i++) {
+	               lnUps.add(lnSecs[i]);
+	             }
+	             selector.getUiContext().put("companyId", ((CompanyOrgUnitInfo)bizPromptCompany.getData()).getId().toString());
+	             selector.getUiContext().put("companyLongNumber", ((CompanyOrgUnitInfo)bizPromptCompany.getData()).getLongNumber());
+	           } else {
+	             selector.getUiContext().put("companyId", null);
+	           }
+	           String costDeptid= null;
+	           if(kdtEntries.getCell(e.getRowIndex(),ENTRY_COSTEDDEPT).getValue()!=null){
+					costDeptid =  ((CostCenterOrgUnitInfo)kdtEntries.getCell(e.getRowIndex(), kdtEntries.getColumnIndex(ENTRY_COSTEDDEPT)).getValue()).getId().toString();
+				}else{
+					costDeptid = BOSUuid.create("111111").toString();
+				}
+	             selector.getUiContext().put("costCenterId", costDeptid);
+        }
 	}
 	
 	 public void entryEditStopped(KDTEditEvent e){
@@ -187,7 +235,12 @@ public class EvectionReqBillEditUICTEx extends EvectionReqBillEditUI {
 	        	  }
 	        	  this.kdtEntries.getRow(e.getRowIndex()).getCell(ENTRY_EXPENSETYPE).setValue(expenseTypeInfo);
 	          }
-	 	  }
+	 	  }else  if (e.getColIndex() == kdtEntries.getColumnIndex(ENTRY_COSTEDDEPT))
+	  		 {
+	  			 if(e.getOldValue()!=e.getValue()){
+	  				 kdtEntries.getCell(e.getRowIndex(), ENTRY_EXPENSETYPE).setValue(null);
+	  			 }
+	  		 }
 	   }
 	
 }

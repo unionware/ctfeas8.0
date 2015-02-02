@@ -13,6 +13,9 @@ import com.kingdee.bos.metadata.entity.SelectorItemCollection;
 import com.kingdee.bos.metadata.entity.SelectorItemInfo;
 import com.kingdee.bos.ui.face.CoreUIObject;
 import com.kingdee.bos.util.BOSUuid;
+import com.kingdee.bos.ctrl.kdf.table.IRow;
+import com.kingdee.bos.ctrl.kdf.table.KDTSelectBlock;
+import com.kingdee.bos.ctrl.kdf.table.KDTStyleConstants;
 import com.kingdee.bos.ctrl.kdf.table.event.KDTSelectEvent;
 import com.kingdee.bos.ctrl.kdf.table.event.KDTSelectListener;
 import com.kingdee.bos.dao.IObjectValue;
@@ -62,6 +65,8 @@ public class ExcessSetListUI extends AbstractExcessSetListUI
     }
     
 	private void initUI() {
+//		this.tblMain.setScrollStateVertical(KDTStyleConstants.SCROLL_STATE_SHOW);
+		
 		this.actionCancel.setVisible(true);
     	this.actionCancelCancel.setVisible(true);
     	
@@ -76,17 +81,62 @@ public class ExcessSetListUI extends AbstractExcessSetListUI
 	}
 
 	protected final void _tblMain_tableSelectChanged(KDTSelectEvent e) throws Exception {
-        int activeRowIndex = this.tblMain.getSelectManager().getActiveRowIndex();
-        if (activeRowIndex != -1) {
-          if (this.tblMain.getRow(activeRowIndex).getCell("isEnable") != null) {
-            boolean status = ((Boolean)this.tblMain.getCell(activeRowIndex, "isEnable").getValue()).booleanValue();
-            this.actionCancelCancel.setEnabled(!(status));
-            this.actionCancel.setEnabled(status);
-          }
-        } else {
-          this.actionCancelCancel.setEnabled(false);
-          this.actionCancel.setEnabled(false);
-        }
+		if (e == null) {
+			return;
+		}
+		KDTSelectBlock selectBlock = e.getSelectBlock();
+		if (selectBlock == null) {
+			return;
+		}
+		
+		int size = this.tblMain.getSelectManager().size();
+		this.actionRemove.setEnabled(true);
+		this.actionEdit.setEnabled(true);
+		
+		int ct = 0;
+		int cct = 0;
+		for (int i = 0; i < size; i++) {
+			selectBlock = this.tblMain.getSelectManager().get(i);
+			int j = selectBlock.getTop(); 
+			for (int bottom = selectBlock.getBottom(); j <= bottom; j++) {
+				IRow row = this.tblMain.getRow(j);
+				if(row.getCell("isEnable") != null){
+					boolean status = ((Boolean)row.getCell("isEnable").getValue()).booleanValue();
+					if(status){
+						this.actionCancelCancel.setEnabled(false);
+						this.actionCancel.setEnabled(true);
+						ct++;
+					}else{
+						this.actionCancelCancel.setEnabled(true);
+						this.actionCancel.setEnabled(false);
+						cct++;
+					}
+					if(status){
+						this.actionRemove.setEnabled(!(status));
+						this.actionEdit.setEnabled(false);
+					}
+				}
+			}
+			
+		}
+		if(ct>0 && cct>0){
+			this.actionCancelCancel.setEnabled(false);
+			this.actionCancel.setEnabled(false);
+		}
+		
+//        int activeRowIndex = this.tblMain.getSelectManager().getActiveRowIndex();
+//        if (activeRowIndex != -1) {
+//          if (this.tblMain.getRow(activeRowIndex).getCell("isEnable") != null) {
+//            boolean status = ((Boolean)this.tblMain.getCell(activeRowIndex, "isEnable").getValue()).booleanValue();
+//            this.actionCancelCancel.setEnabled(!(status));
+//            this.actionCancel.setEnabled(status);
+//            this.actionRemove.setEnabled(!(status));
+//            this.actionEdit.setEnabled(!(status));
+//          }
+//        } else {
+//          this.actionCancelCancel.setEnabled(false);
+//          this.actionCancel.setEnabled(false);
+//        }
      }
     
     public void actionCancel_actionPerformed(ActionEvent e)throws Exception{
@@ -142,16 +192,16 @@ public class ExcessSetListUI extends AbstractExcessSetListUI
 	    super.actionEdit_actionPerformed(e);
   }
 	
-	public void actionRemove_actionPerformed(ActionEvent e)throws Exception{
-	     checkSelected();
-	    int activeRowIndex = this.tblMain.getSelectManager().getActiveRowIndex();
-	   
-	    String selectID = this.tblMain.getCell(activeRowIndex, "id").getValue().toString();
-	    if (outPutWarningSentanceAndVerifyCancelorCancelCancelByID("É¾³ý", selectID)) {
-	      return;
-	    }
-	    super.actionRemove_actionPerformed(e);
-	}
+//	public void actionRemove_actionPerformed(ActionEvent e)throws Exception{
+//	     checkSelected();
+//	    int activeRowIndex = this.tblMain.getSelectManager().getActiveRowIndex();
+//	   
+//	    String selectID = this.tblMain.getCell(activeRowIndex, "id").getValue().toString();
+//	    if (outPutWarningSentanceAndVerifyCancelorCancelCancelByID("É¾³ý", selectID)) {
+//	      return;
+//	    }
+//	    super.actionRemove_actionPerformed(e);
+//	}
 	
 	public boolean outPutWarningSentanceAndVerifyCancelorCancelCancelByID(String words, String selectID)throws Exception{
 	    boolean flag = false;

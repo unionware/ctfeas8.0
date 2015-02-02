@@ -256,8 +256,14 @@ public class ExcessSetEditUI extends AbstractExcessSetEditUI {
 		IExcessSet iSet = ExcessSetFactory.getRemoteInstance();
 		
 		if(iSet.exists(filter)){
-			MsgBox.showInfo(this,"已存在'年份+费用类型+项目'的费用类型超额比例！");
-			abort();
+			if(projectInfo!=null){
+				MsgBox.showInfo(this,"已存在"+kdYear.getValue()+"年份"+expenseTypeInfo.getName()+"费用类型"+projectInfo.getName()+"项目的费用类型超额比例！");
+				abort();
+			}else{
+				MsgBox.showInfo(this,"已存在"+kdYear.getValue()+"年份"+expenseTypeInfo.getName()+"费用类型的费用类型超额比例！");
+				abort();
+			}
+			
 		}
 		
 	}
@@ -445,14 +451,14 @@ public class ExcessSetEditUI extends AbstractExcessSetEditUI {
       super.actionEdit_actionPerformed(e);
     }
 
-    public void actionRemove_actionPerformed(ActionEvent e) throws Exception {
-
-      String selectID = this.editData.getId().toString();
-      if (outPutWarningSentanceAndVerifyCancelorCancelCancelByID("删除", selectID)) {
-        return;
-      }
-      super.actionRemove_actionPerformed(e);
-    }
+	  public void actionRemove_actionPerformed(ActionEvent e) throws Exception {
+	
+	      String selectID = this.editData.getId().toString();
+	      if (outPutWarningSentanceAndVerifyCancelorCancelCancelByID("删除", selectID)) {
+	        return;
+	      }
+	      super.actionRemove_actionPerformed(e);
+	  }
 	    
     public boolean outPutWarningSentanceAndVerifyCancelorCancelCancelByID(String words, String selectID)throws Exception{
 	    boolean flag = false;

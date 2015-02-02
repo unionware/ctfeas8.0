@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -13,27 +14,34 @@ import com.kingdee.bos.ctrl.kdf.table.KDTDefaultCellEditor;
 import com.kingdee.bos.ctrl.kdf.table.KDTable;
 import com.kingdee.bos.ctrl.kdf.table.event.KDTEditAdapter;
 import com.kingdee.bos.ctrl.kdf.table.event.KDTEditEvent;
+import com.kingdee.bos.ctrl.kdf.table.event.KDTPropertyChangeEvent;
+import com.kingdee.bos.ctrl.kdf.util.render.ObjectValueRender;
 import com.kingdee.bos.ctrl.kdf.util.style.Styles.HorizontalAlignment;
 import com.kingdee.bos.ctrl.swing.event.DataChangeEvent;
 import com.kingdee.bos.ctrl.swing.event.DataChangeListener;
+import com.kingdee.bos.ctrl.swing.event.SelectorEvent;
+import com.kingdee.bos.ctrl.swing.event.SelectorListener;
 import com.kingdee.bos.dao.IObjectValue;
 import com.kingdee.bos.metadata.entity.EntityViewInfo;
 import com.kingdee.bos.metadata.entity.FilterInfo;
 import com.kingdee.bos.metadata.entity.FilterItemInfo;
 import com.kingdee.bos.metadata.entity.SelectorItemCollection;
 import com.kingdee.bos.metadata.entity.SelectorItemInfo;
+import com.kingdee.bos.util.BOSUuid;
 import com.kingdee.eas.basedata.assistant.CurrencyInfo;
 import com.kingdee.eas.basedata.assistant.ExchangeRateInfo;
 import com.kingdee.eas.basedata.assistant.ProjectInfo;
 import com.kingdee.eas.basedata.master.cssp.client.CSClientUtils;
 import com.kingdee.eas.basedata.org.CompanyOrgUnitInfo;
 import com.kingdee.eas.basedata.org.CostCenterOrgUnitInfo;
+import com.kingdee.eas.basedata.org.FullOrgUnitInfo;
 import com.kingdee.eas.common.client.OprtState;
 import com.kingdee.eas.common.client.SysContext;
 import com.kingdee.eas.cp.bc.BizCollUtil;
 import com.kingdee.eas.cp.bc.ExpenseTypeInfo;
 import com.kingdee.eas.cp.bc.LinkOthExpenseInfo;
 import com.kingdee.eas.cp.bc.MakeControl;
+import com.kingdee.eas.cp.bc.OperationTypeInfo;
 import com.kingdee.eas.cp.bc.OtherExpenseBillEntryCollection;
 import com.kingdee.eas.cp.bc.OtherExpenseBillEntryInfo;
 import com.kingdee.eas.cp.bc.OtherExpenseBillInfo;
@@ -78,6 +86,10 @@ public class OtherExpenseEditUICTEx extends OtherExpenseEditUI {
     
     JButton btnAddRuleNew = null;
     JButton btnRemoveRuleNew = null;
+    
+    
+    private KDBizPromptBox bizPromptExpenseTypeEntry = new KDBizPromptBox();  //父类中的不可见
+    
     
 	public OtherExpenseEditUICTEx() throws Exception {
 		super();
@@ -125,6 +137,77 @@ public class OtherExpenseEditUICTEx extends OtherExpenseEditUI {
 		this.entryCostedDept.setEditable(true);
 		entryCostedDept.setEntityViewInfo(bizPromptCostedDept.getEntityViewInfo());
 		this.kdtEntries.getColumn(ENTRY_COSTEDDEPT).setEditor(new KDTDefaultCellEditor(entryCostedDept));
+		
+		
+		 //父类中的不可见
+	     MakeControl.makeAccountF7_mul(bizPromptExpenseTypeEntry, this);
+	     bizPromptExpenseTypeEntry.setEditable(true);
+	     ObjectValueRender avr = new ObjectValueRender();
+	     avr.setFormat(new com.kingdee.bos.ctrl.extendcontrols.BizDataFormat("$typeName$-$number$"));
+	     kdtEntries.getColumn(ENTRY_EXPENSETYPE).setRenderer(avr);
+	     kdtEntries.getColumn(ENTRY_EXPENSETYPE).setEditor(new KDTDefaultCellEditor(bizPromptExpenseTypeEntry));
+		
+	     this.kdtEntries.addKDTEditListener(new KDTEditAdapter()
+	     {
+	       public void editStarting(KDTEditEvent e)
+	       {
+	         if (e.getColIndex() == kdtEntries.getColumnIndex(ENTRY_EXPENSETYPE))
+	         {
+	           ExpenseTypePromptBox selector = (ExpenseTypePromptBox)bizPromptExpenseTypeEntry.getSelector();
+	           
+	           if (bizPromptExpenseType.getValue() != null) {
+	             selector.getUiContext().put("operationTypeId", ((OperationTypeInfo)bizPromptExpenseType.getValue()).getId().toString());
+	           } else {
+	             selector.getUiContext().put("operationTypeId", null);
+	           }
+	           
+	           if (bizPromptCompany.getData() != null) {
+	             String ln = ((CompanyOrgUnitInfo)bizPromptCompany.getData()).getLongNumber();
+	             String[] lnSecs = ln.split("!");
+	             int size = lnSecs.length;
+	             HashSet lnUps = new HashSet();
+	             for (int i = 0; i < size; i++) {
+	               lnUps.add(lnSecs[i]);
+	             }
+	             selector.getUiContext().put("companyId", ((CompanyOrgUnitInfo)bizPromptCompany.getData()).getId().toString());
+	             selector.getUiContext().put("companyLongNumber", ((CompanyOrgUnitInfo)bizPromptCompany.getData()).getLongNumber());
+	           } else {
+	             selector.getUiContext().put("companyId", null);
+	           }
+	           String costDeptid= null;
+	           if(kdtEntries.getCell(e.getRowIndex(),ENTRY_COSTEDDEPT).getValue()!=null){
+					costDeptid =  ((CostCenterOrgUnitInfo)kdtEntries.getCell(e.getRowIndex(), kdtEntries.getColumnIndex(ENTRY_COSTEDDEPT)).getValue()).getId().toString();
+				}else{
+					costDeptid = BOSUuid.create("111111").toString();
+				}
+	             selector.getUiContext().put("costCenterId", costDeptid);
+	         } 
+	       }
+	       
+	 
+	 
+	       public void editStopping(KDTEditEvent e) {}
+	       
+	 
+	       public void editStopped(KDTEditEvent e)
+	       {
+	    	   if (e.getColIndex() == kdtEntries.getColumnIndex(ENTRY_COSTEDDEPT))
+	  		 {
+	  			 if(e.getOldValue()!=e.getValue()){
+	  				 kdtEntries.getCell(e.getRowIndex(), ENTRY_EXPENSETYPE).setValue(null);
+	  			 }
+	  		 }
+	       }
+	     });
+	}
+	
+	@Override
+	protected void bizPromptCostedDept_dataChanged(DataChangeEvent e)
+			throws Exception {
+		super.bizPromptCostedDept_dataChanged(e);
+		 if (e.getNewValue() != e.getOldValue()) {
+			 bizPromptExpenseType.setValue(null);
+		 }
 	}
 	
 	private void initUI(){
@@ -142,7 +225,7 @@ public class OtherExpenseEditUICTEx extends OtherExpenseEditUI {
 		promptProjectEntry.setQueryInfo("com.kingdee.eas.basedata.assistant.app.F7ProjectQuery");
 		promptProjectEntry.setVisible(true);
 		promptProjectEntry.setEditable(true);
-		promptProjectEntry.setRequired(true);
+		promptProjectEntry.setRequired(false);
 		promptProjectEntry.setDisplayFormat("$name$");
 		promptProjectEntry.setEditFormat("$number$");
 		promptProjectEntry.setCommitFormat("$number$");
@@ -152,11 +235,17 @@ public class OtherExpenseEditUICTEx extends OtherExpenseEditUI {
 		promptPersonEntry.setQueryInfo("com.kingdee.eas.basedata.person.app.PersonQuery");
 		promptPersonEntry.setVisible(true);
 		promptPersonEntry.setEditable(true);
-		promptPersonEntry.setRequired(true);
-		promptPersonEntry.setDisplayFormat("$name$");
+		promptPersonEntry.setRequired(false);
+		promptPersonEntry.setDisplayFormat("$name$-$number$");
 		promptPersonEntry.setEditFormat("$number$");
 		promptPersonEntry.setCommitFormat("$number$");
+		
+		ObjectValueRender kdtEntrys_person_OVR = new ObjectValueRender();
+		kdtEntrys_person_OVR.setFormat(new com.kingdee.bos.ctrl.extendcontrols.BizDataFormat("$name$-$number$"));
+		
 		this.kdtEntries.getColumn(ENTRY_PERSON).setEditor(new KDTDefaultCellEditor(promptPersonEntry));
+		this.kdtEntries.getColumn(ENTRY_PERSON).setRenderer(kdtEntrys_person_OVR);
+		this.kdtEntries.getColumn(ENTRY_PERSON).setRequired(false);
 		
 		linkEntryOthExpBill.setQueryInfo("com.kingdee.eas.cp.bc.app.OtherExpBillQuery");
 		linkEntryOthExpBill.setVisible(true);
@@ -170,21 +259,52 @@ public class OtherExpenseEditUICTEx extends OtherExpenseEditUI {
 		filter.getFilterItems().add(new FilterItemInfo("state",StateEnum.CLOSED_VALUE));
 		view.setFilter(filter);
 		linkEntryOthExpBill.setEntityViewInfo(view);
-		this.linkOthExpenseEntry.getColumn(LINKENTRY_OTHEXPBILL).setEditor(new KDTDefaultCellEditor(linkEntryOthExpBill));
 		
+		ObjectValueRender linkEntrys_otherExp_OVR = new ObjectValueRender();
+		linkEntrys_otherExp_OVR.setFormat(new com.kingdee.bos.ctrl.extendcontrols.BizDataFormat("$number$"));
+		
+		this.linkOthExpenseEntry.getColumn(LINKENTRY_OTHEXPBILL).setEditor(new KDTDefaultCellEditor(linkEntryOthExpBill));
+		this.linkOthExpenseEntry.getColumn(LINKENTRY_OTHEXPBILL).setRenderer(linkEntrys_otherExp_OVR);
 		this.linkOthExpenseEntry.getColumn(LINKENTRY_USEDAMOUNT).getStyleAttributes().setLocked(true);
 		
 		this.kdtEntries.getColumn(ENTRY_AMOUNTUSED).getStyleAttributes().setHided(false);
 		this.kdtEntries.getColumn(ENTRY_AMOUNTUSED).getStyleAttributes().setLocked(true);
 		
-//		this.kdtEntries.getColumn(this.ENTRY_CONTRACTAMOUNT).setEditor(new KDTDefaultCellEditor(BizCollUtil.getMoneyEditor()));
-//		this.kdtEntries.getColumn(this.ENTRY_CONTRACTAMOUNT).getStyleAttributes().setLocked(true);
-//		this.kdtEntries.getColumn(this.ENTRY_CONTRACTAMOUNT).getStyleAttributes().setHorizontalAlign(HorizontalAlignment.RIGHT);
-		
 		this.txtApprovedAmount.setPrecision(2);
 		this.txtApprovedAmount.setDataType(1);
 		this.txtApprovedAmount.setHorizontalAlignment(2);
 		this.txtApprovedAmount.setRemoveingZeroInDispaly(false);
+		
+		
+		bizPromptExpenseType.addSelectorListener(new SelectorListener(){
+			public void willShow(SelectorEvent arg0) {
+				 String ids = null;
+				 
+				 if ((bizPromptCostedDept.getData() instanceof FullOrgUnitInfo)) {
+					 FullOrgUnitInfo org =  (FullOrgUnitInfo)bizPromptCostedDept.getData();
+					 if(org!=null){
+						 ids = ((FullOrgUnitInfo)bizPromptCostedDept.getData()).getId().toString();
+					 }
+				}else  if ((bizPromptCostedDept.getData() instanceof CostCenterOrgUnitInfo)) {
+					CostCenterOrgUnitInfo org =  (CostCenterOrgUnitInfo)bizPromptCostedDept.getData();
+					 if(org!=null){
+						 ids = ((CostCenterOrgUnitInfo)bizPromptCostedDept.getData()).getId().toString();
+					 }
+				}
+				 
+				 if (("ADDNEW".equals(getOprtState())) || ("EDIT".equals(getOprtState()))){
+					 OperationTypePromptBox selector = (OperationTypePromptBox)bizPromptExpenseType.getSelector();
+					 if(selector==null){
+						 selector = (OperationTypePromptBox)bizPromptExpenseType.getSelector();
+					 }
+					 if(ids==null){
+						 ids = BOSUuid.create("111111").toString();
+					 }
+					 selector.getUiContext().put("costCenterId", ids);
+					
+				 }
+			}});
+		
 	}
 	
 	@Override
@@ -199,7 +319,7 @@ public class OtherExpenseEditUICTEx extends OtherExpenseEditUI {
 			}else{
 				for (int i = 0; i < linkOthExpenseEntry.getRowCount(); i++) {
 					if(linkOthExpenseEntry.getCell(i, LINKENTRY_OTHEXPBILL).getValue()==null){
-						MsgBox.showInfo("【关联费用申请单】分录的“关联费用申请单”字段不允许为空！");
+						MsgBox.showInfo("【关联费用申请单】分录的关联费用申请单不允许为空！");
 						abort();
 					}
 				}
@@ -227,11 +347,11 @@ public class OtherExpenseEditUICTEx extends OtherExpenseEditUI {
 					abort();
 				}
 				
-				if(kdtEntries.getCell(i, ENTRY_PERSON).getValue()==null){
+				/*if(kdtEntries.getCell(i, ENTRY_PERSON).getValue()==null){
 					MsgBox.showInfo(this,"职员不能为空！");
 					kdtEntries.getEditManager().editCellAt(i, kdtEntries.getColumnIndex(ENTRY_PERSON));
 					abort();
-				}
+				}*/
 				
 				/*if(kdtEntries.getCell(i, ENTRY_PROJECT).getValue()!=null){
 					projectid = ((ProjectInfo)kdtEntries.getCell(i, ENTRY_PROJECT).getValue()).getId().toString();
@@ -272,6 +392,18 @@ public class OtherExpenseEditUICTEx extends OtherExpenseEditUI {
 			
 		chkIsChanged.addActionListener(isChangedActionListener);
 		
+		
+		
+		
+		this.kdtEntries.addKDTPropertyChangeListener(new com.kingdee.bos.ctrl.kdf.table.event.KDTPropertyChangeListener() {
+
+			@Override
+			public void propertyChange(KDTPropertyChangeEvent arg0) {
+				
+			}});
+		
+		
+		
 		entryEditListener = new KDTEditAdapter(){
 			public void editStopped(KDTEditEvent e) {
     			entryEditStoped(e);
@@ -304,6 +436,24 @@ public class OtherExpenseEditUICTEx extends OtherExpenseEditUI {
 			}});
 	}
 	
+	@Override
+	protected void kdtEntries_propertyChange(KDTPropertyChangeEvent e)
+			throws Exception {
+		super.kdtEntries_propertyChange(e);
+		changeDataRemoveCopy();
+	}
+	
+	
+	protected void changeDataRemoveCopy(){
+		BigDecimal amount = txtAmount.getBigDecimalValue();
+		if(linkOthExpenseEntry.getRowCount()>0){
+			for (int i = 0; i < linkOthExpenseEntry.getRowCount(); i++) {
+				BigDecimal linkAmount = (BigDecimal) (linkOthExpenseEntry.getCell(i, LINKENTRY_USEDAMOUNT).getValue()==null?BigDecimal.ZERO:linkOthExpenseEntry.getCell(i, LINKENTRY_USEDAMOUNT).getValue());
+				amount = amount.add(linkAmount);
+			}
+		}
+		txtApplyAmount.setValue(amount);
+	}
 	protected void entryEditStoped(KDTEditEvent e) {
 		int colIndex = e.getColIndex();
 		int rowIndex = e.getRowIndex();
@@ -321,7 +471,7 @@ public class OtherExpenseEditUICTEx extends OtherExpenseEditUI {
 			if((newValue==null && oldValue==null) || (newValue!=null && newValue.equals(oldValue))){
 		   		 return ;
 		   	}
-			changeApplyAmount((newValue.subtract(oldValue)).multiply(rate));
+//			changeApplyAmount((newValue.subtract(oldValue)).multiply(rate));
 		    
 		}
 	}
@@ -392,11 +542,8 @@ public class OtherExpenseEditUICTEx extends OtherExpenseEditUI {
 	@Override
 	public void actionRemoveLine_actionPerformed(ActionEvent arg0)
 			throws Exception {
-		int rowIndex = kdtEntries.getSelectManager().getActiveRowIndex();
-		BigDecimal entryApplyAmt = (BigDecimal) (kdtEntries.getCell(rowIndex, "approvedAmount").getValue()==null?BigDecimal.ZERO:kdtEntries.getCell(rowIndex, "approvedAmount").getValue());
-		BigDecimal applyAmt = txtApplyAmount.getBigDecimalValue();
 		super.actionRemoveLine_actionPerformed(arg0);
-		txtApplyAmount.setValue(applyAmt.subtract(entryApplyAmt));
+		changeDataRemoveCopy();
 	}
 	
 	protected void isChangedAction(ActionEvent e) {
@@ -449,6 +596,7 @@ public class OtherExpenseEditUICTEx extends OtherExpenseEditUI {
 			throws Exception {
 		super.actionRemoveLinkLine_actionPerformed(arg0);
 		kdTableDeleteRow(linkOthExpenseEntry);
+		changeDataRemoveCopy();
 	}
 	
 	/**

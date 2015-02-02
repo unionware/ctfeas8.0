@@ -30,6 +30,7 @@ public class K3ConstantConfigEditUI extends AbstractK3ConstantConfigEditUI
     public void loadFields()
     {
         super.loadFields();
+        this.txtNumber.setEnabled(false);
     }
 
     /**

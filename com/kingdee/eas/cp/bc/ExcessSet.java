@@ -11,6 +11,7 @@ import com.kingdee.bos.metadata.entity.EntityViewInfo;
 import com.kingdee.eas.common.EASBizException;
 import com.kingdee.bos.dao.IObjectPK;
 import com.kingdee.eas.framework.DataBase;
+import java.math.BigDecimal;
 import com.kingdee.eas.cp.bc.app.*;
 import com.kingdee.bos.metadata.entity.SelectorItemCollection;
 import com.kingdee.eas.framework.CoreBaseCollection;
@@ -134,6 +135,37 @@ public class ExcessSet extends DataBase implements IExcessSet
     {
         try {
             return getController().getExcessSetCollection(getContext(), oql);
+        }
+        catch(RemoteException err) {
+            throw new EJBRemoteException(err);
+        }
+    }
+    /**
+     *获取超额比例-User defined method
+     *@param projectid 项目ID
+     *@param expenseTypeid 费用类型
+     *@param costcenterid 费用归属部门
+     *@param excessSetCol 符合年份的超额比例集合
+     *@return
+     */
+    public BigDecimal getAboveQuota(String projectid, String expenseTypeid, String costcenterid, ExcessSetCollection excessSetCol) throws BOSException, EASBizException
+    {
+        try {
+            return getController().getAboveQuota(getContext(), projectid, expenseTypeid, costcenterid, excessSetCol);
+        }
+        catch(RemoteException err) {
+            throw new EJBRemoteException(err);
+        }
+    }
+    /**
+     *获取相同年份的超额比例集合-User defined method
+     *@param year 年份
+     *@return
+     */
+    public ExcessSetCollection getExcessSetInfos(long year) throws BOSException, EASBizException
+    {
+        try {
+            return getController().getExcessSetInfos(getContext(), year);
         }
         catch(RemoteException err) {
             throw new EJBRemoteException(err);

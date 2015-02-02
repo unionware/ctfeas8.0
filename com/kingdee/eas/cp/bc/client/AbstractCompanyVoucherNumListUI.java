@@ -67,6 +67,7 @@ public abstract class AbstractCompanyVoucherNumListUI extends com.kingdee.eas.fr
         this.setUITitle(resHelper.getString("this.title"));
         mainQueryPK = new MetaDataPK("com.kingdee.eas.cp.bc.app", "CompanyVoucherNumQuery");
         // CoreUI		
+        this.setPreferredSize(new Dimension(800,600));		
         this.btnPageSetup.setVisible(false);		
         this.btnCloud.setVisible(false);		
         this.btnXunTong.setVisible(false);		

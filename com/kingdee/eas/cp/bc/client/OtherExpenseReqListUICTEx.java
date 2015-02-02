@@ -35,11 +35,13 @@ public class OtherExpenseReqListUICTEx extends OtherExpenseReqListUI {
 			this.tblMain.removeColumn(this.tblMain.getColumnIndex("entries.project.name"));
 			this.tblMain.removeColumn(this.tblMain.getColumnIndex("entries.costedDept.name"));
 		}
+		this.tblMain.removeColumn(this.tblMain.getColumnIndex("applyAmount"));
+		
 	}
 	
 	/**
 	 * 新增关闭费用申请单关闭关联的采购合同
-	 */
+	 *//*
 	@Override
 	public void actionCloseBill_actionPerformed(ActionEvent e) throws Exception {
 		super.actionCloseBill_actionPerformed(e);
@@ -80,7 +82,39 @@ public class OtherExpenseReqListUICTEx extends OtherExpenseReqListUI {
 		SelectorItemCollection sic = new SelectorItemCollection();
 		sic.add(new SelectorItemInfo("baseStatus"));
 		return sic;
-	}
+	}*/
 	
 
+	@Override
+	public SelectorItemCollection getBOTPSelectors() {
+		SelectorItemCollection sic =   super.getBOTPSelectors(); 
+		
+		sic.add(new SelectorItemInfo("isChanged"));
+		sic.add(new SelectorItemInfo("applyAmount"));
+		sic.add(new SelectorItemInfo("isCentralPur"));
+		
+		sic.add(new SelectorItemInfo("serviceDept.id"));
+		sic.add(new SelectorItemInfo("serviceDept.name"));
+		sic.add(new SelectorItemInfo("serviceDept.number"));
+		
+		sic.add(new SelectorItemInfo("linkOthExpense.otherExpenseBill.id"));
+		sic.add(new SelectorItemInfo("linkOthExpense.otherExpenseBill.name"));
+		sic.add(new SelectorItemInfo("linkOthExpense.otherExpenseBill.number"));
+		
+		sic.add(new SelectorItemInfo("linkOthExpense.usedAmount"));
+		
+		sic.add(new SelectorItemInfo("entries.project.id"));
+		sic.add(new SelectorItemInfo("entries.project.name"));
+		sic.add(new SelectorItemInfo("entries.project.number"));
+		
+		sic.add(new SelectorItemInfo("entries.costedDept.id"));
+		sic.add(new SelectorItemInfo("entries.costedDept.name"));
+		sic.add(new SelectorItemInfo("entries.costedDept.number"));
+		
+		sic.add(new SelectorItemInfo("entries.person.id"));
+		sic.add(new SelectorItemInfo("entries.person.name"));
+		sic.add(new SelectorItemInfo("entries.person.number"));
+		
+		return sic;
+	}
 }

@@ -21,16 +21,17 @@ import com.kingdee.eas.framework.exception.EASMultiException;
 import com.kingdee.bos.dao.ormapping.ObjectUuidPK;
 
 import java.lang.String;
-import com.kingdee.eas.common.EASBizException;
 import com.kingdee.bos.metadata.entity.EntityViewInfo;
-import com.kingdee.eas.cp.bc.ExcessSetInfo;
+import com.kingdee.eas.common.EASBizException;
 import com.kingdee.bos.dao.IObjectPK;
+import java.math.BigDecimal;
+import com.kingdee.bos.metadata.entity.SelectorItemCollection;
+import com.kingdee.eas.framework.CoreBaseCollection;
+import com.kingdee.eas.cp.bc.ExcessSetInfo;
 import com.kingdee.eas.framework.CoreBaseInfo;
 import com.kingdee.eas.framework.ObjectBaseCollection;
 import com.kingdee.eas.cp.bc.ExcessSetCollection;
 import com.kingdee.eas.framework.app.DataBaseControllerBean;
-import com.kingdee.bos.metadata.entity.SelectorItemCollection;
-import com.kingdee.eas.framework.CoreBaseCollection;
 import com.kingdee.eas.framework.DataBaseCollection;
 
 
@@ -213,6 +214,58 @@ public abstract class AbstractExcessSetControllerBean extends DataBaseController
     protected IObjectCollection _getCollection(Context ctx, IServiceContext svcCtx, String oql) throws BOSException
     {
         return super._getCollection(ctx, svcCtx, oql);
+    }
+
+    public BigDecimal getAboveQuota(Context ctx, String projectid, String expenseTypeid, String costcenterid, ExcessSetCollection excessSetCol) throws BOSException, EASBizException
+    {
+        try {
+            ServiceContext svcCtx = createServiceContext(new MetaDataPK("2a150fdb-df7e-4b98-a59a-278474c8630b"), new Object[]{ctx, projectid, expenseTypeid, costcenterid, excessSetCol});
+            invokeServiceBefore(svcCtx);
+            if(!svcCtx.invokeBreak()) {
+            BigDecimal retValue = (BigDecimal)_getAboveQuota(ctx, projectid, expenseTypeid, costcenterid, excessSetCol);
+            svcCtx.setMethodReturnValue(retValue);
+            }
+            invokeServiceAfter(svcCtx);
+            return (BigDecimal)svcCtx.getMethodReturnValue();
+        } catch (BOSException ex) {
+            this.setRollbackOnly();
+            throw ex;
+        } catch (EASBizException ex0) {
+            this.setRollbackOnly();
+            throw ex0;
+        } finally {
+            super.cleanUpServiceState();
+        }
+    }
+    protected BigDecimal _getAboveQuota(Context ctx, String projectid, String expenseTypeid, String costcenterid, IObjectCollection excessSetCol) throws BOSException, EASBizException
+    {    	
+        return null;
+    }
+
+    public ExcessSetCollection getExcessSetInfos(Context ctx, long year) throws BOSException, EASBizException
+    {
+        try {
+            ServiceContext svcCtx = createServiceContext(new MetaDataPK("e8e99079-f05c-4f5c-b042-63df65121394"), new Object[]{ctx, new Long(year)});
+            invokeServiceBefore(svcCtx);
+            if(!svcCtx.invokeBreak()) {
+            ExcessSetCollection retValue = (ExcessSetCollection)_getExcessSetInfos(ctx, year);
+            svcCtx.setMethodReturnValue(retValue);
+            }
+            invokeServiceAfter(svcCtx);
+            return (ExcessSetCollection)svcCtx.getMethodReturnValue();
+        } catch (BOSException ex) {
+            this.setRollbackOnly();
+            throw ex;
+        } catch (EASBizException ex0) {
+            this.setRollbackOnly();
+            throw ex0;
+        } finally {
+            super.cleanUpServiceState();
+        }
+    }
+    protected IObjectCollection _getExcessSetInfos(Context ctx, long year) throws BOSException, EASBizException
+    {    	
+        return null;
     }
 
     public DataBaseCollection getDataBaseCollection (Context ctx) throws BOSException

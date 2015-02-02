@@ -5,6 +5,9 @@ import java.util.Map;
 
 import com.kingdee.bos.BOSException;
 import com.kingdee.bos.Context;
+import com.kingdee.bos.metadata.entity.EntityViewInfo;
+import com.kingdee.bos.metadata.entity.FilterInfo;
+import com.kingdee.bos.metadata.entity.FilterItemInfo;
 import com.kingdee.eas.cp.bc.K3ConstantConfigCollection;
 import com.kingdee.eas.cp.bc.K3ConstantConfigFactory;
 import com.kingdee.eas.cp.bc.K3ConstantConfigInfo;
@@ -19,6 +22,10 @@ public class K3WebAccConfigInfos {
 	public static final String DEBIT_ACOUNT_PERSONAL="DEBIT_ACOUNT_PERSONAL";
 	public static final String DEBIT_ACOUNT_SUPPLIER="DEBIT_ACOUNT_SUPPLIER";
 	
+	public static final String PROXY_IS_ENABLED="PROXY_IS_ENABLED";
+	public static final String PROXY_HOST="PROXY_HOST";
+	public static final String PROXY_PORT="PROXY_PORT";
+	
 	private static final String IS_INITED="ISINITED";
 	
 	private static boolean isInited =false;
@@ -31,23 +38,39 @@ public class K3WebAccConfigInfos {
 	private static Map<String,Map<String,String>> aisValMap = new HashMap<String, Map<String,String>>();
 	public static String getK3WebSer(Context ctx) throws BOSException{
 		init(ctx);
-		
-		return getByAIS(ctx.getAIS()).get(NUM_K3_WEBSERVICE);
+		return getValByNum(ctx, NUM_K3_WEBSERVICE);
+		//return getByAIS(ctx.getAIS()).get(NUM_K3_WEBSERVICE);
 	}
 
 	
 	public static String getAcountPayModeName(Context ctx) throws BOSException{
 		init(ctx);
-		return getByAIS(ctx.getAIS()).get(NUM_BIZACCOUNT_PAYMODE);
+		return getValByNum(ctx, NUM_BIZACCOUNT_PAYMODE);
+		//return getByAIS(ctx.getAIS()).get(NUM_BIZACCOUNT_PAYMODE);
 	}
 	
 	public static String getChargeName(Context ctx) throws BOSException{
 		init(ctx);
-		return getByAIS(ctx.getAIS()).get(NUM_CHARGE_NAME);	
+		return getValByNum(ctx, NUM_CHARGE_NAME);
+		//return getByAIS(ctx.getAIS()).get(NUM_CHARGE_NAME);	
+	}
+	
+	private static String getValByNum(Context ctx,String number) throws BOSException {
+		EntityViewInfo view = new EntityViewInfo();
+		FilterInfo filter = new FilterInfo();
+		view.setFilter(filter);
+		filter.getFilterItems().add(new FilterItemInfo("number",number));
+		K3ConstantConfigCollection coll =  K3ConstantConfigFactory.getLocalInstance(ctx).getK3ConstantConfigCollection(view);
+		if(coll!=null && coll.size()>0){
+			return coll.get(0).getVal();
+		}else{
+			return null;
+		}
 	}
 	public static boolean IsEnableCallK3WebSer(Context ctx) throws BOSException{
 		init(ctx);
-		String  NUM_ENABLE_CALL_K3WEBSER_VAL =  getByAIS(ctx.getAIS()).get(NUM_ENABLE_CALL_K3WEBSER);	
+		String  NUM_ENABLE_CALL_K3WEBSER_VAL = getValByNum(ctx, NUM_ENABLE_CALL_K3WEBSER);
+		//String  NUM_ENABLE_CALL_K3WEBSER_VAL =  getByAIS(ctx.getAIS()).get(NUM_ENABLE_CALL_K3WEBSER);	
 		if("1".equals(NUM_ENABLE_CALL_K3WEBSER_VAL) || "true".equalsIgnoreCase(NUM_ENABLE_CALL_K3WEBSER_VAL)|| "ÊÇ".equals(NUM_ENABLE_CALL_K3WEBSER_VAL)){
 			return true;
 		}
@@ -56,15 +79,38 @@ public class K3WebAccConfigInfos {
 	
 	public static String getDebitPersonAccount(Context ctx) throws BOSException{
 		init(ctx);
-		return getByAIS(ctx.getAIS()).get(DEBIT_ACOUNT_PERSONAL);	
+		return getValByNum(ctx, DEBIT_ACOUNT_PERSONAL);
+		//return getByAIS(ctx.getAIS()).get(DEBIT_ACOUNT_PERSONAL);	
 	}
 	
 	public static String getDebitSupplierAccount(Context ctx) throws BOSException{
 		init(ctx);
-		return getByAIS(ctx.getAIS()).get(DEBIT_ACOUNT_SUPPLIER);	
+		return getValByNum(ctx, DEBIT_ACOUNT_SUPPLIER);
+		//return getByAIS(ctx.getAIS()).get(DEBIT_ACOUNT_SUPPLIER);	
 	}
 	
 	
+	public static boolean isEnableProxy(Context ctx) throws BOSException{
+		init(ctx);
+		String  isEnableProxyStr = getValByNum(ctx, PROXY_IS_ENABLED);
+		if("1".equals(isEnableProxyStr) || "true".equalsIgnoreCase(isEnableProxyStr)|| "ÊÇ".equals(isEnableProxyStr)){
+			return true;
+		}
+		return false;
+		//return getByAIS(ctx.getAIS()).get(PROXY_IS_ENABLED);	
+	}
+	
+	
+	public static String getProxyHost(Context ctx) throws BOSException{
+		init(ctx);
+		return getValByNum(ctx, PROXY_HOST);
+		//return getByAIS(ctx.getAIS()).get(NUM_CHARGE_NAME);	
+	}
+	public static String getProxyPort(Context ctx) throws BOSException{
+		init(ctx);
+		return getValByNum(ctx, PROXY_PORT);
+		//return getByAIS(ctx.getAIS()).get(NUM_CHARGE_NAME);	
+	}
 	
 	public static void inited(Context ctx) throws BOSException{
 			String ais = ctx.getAIS();
